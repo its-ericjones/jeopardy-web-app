@@ -1,0 +1,36 @@
+Title: WWDC '25
+
+Category: iOS
+100|What is iOS?|Apple's mobile operating system used on iPhones.
+200|What is AirDrop?|A feature that allows users to wirelessly share files between Apple devices.
+300|What is Face ID?|A facial recognition system for securely unlocking iPhones.
+400|What is the App Store?|A digital distribution platform for iOS applications.
+500|What is Control Center?|A feature that provides quick access to essential settings and controls.
+
+Category: iPadOS
+100|What is iPadOS?|A version of iOS designed specifically for iPads.
+200|What is Split View?|A multitasking feature that allows two apps to be used side by side.
+300|What is Apple Pencil support?|A feature that allows stylus input for drawing and note-taking.
+400|What is Stage Manager?|A multitasking tool that organizes windows and apps.
+500|What is Scribble?|A feature that converts handwriting to typed text.
+
+Category: macOS
+100|What is macOS?|The desktop operating system used on Apple’s Mac computers.
+200|What is Finder?|The default file management system for macOS.
+300|What is Spotlight?|A search feature that helps users quickly find files and apps.
+400|What is Time Machine?|A backup software that automatically saves copies of your files.
+500|What is Mission Control?|A feature that shows all open windows and desktops.
+
+Category: visionOS
+100|What is visionOS?|Apple's operating system for spatial computing and Vision Pro.
+200|What is spatial audio in visionOS?|A technology that provides immersive 3D sound.
+300|What is EyeSight?|A feature that displays a user’s eyes to others while using Vision Pro.
+400|What is Persona in visionOS?|A digital representation of a user in video calls and apps.
+500|What is the Home View?|The main interface for launching apps in visionOS.
+
+Category: tvOS
+100|What is tvOS?|Apple’s operating system for Apple TV.
+200|What is the Apple TV app?|A central hub for streaming content and subscribing to channels.
+300|What is Siri Remote?|A remote control with voice capabilities for navigating tvOS.
+400|What is AirPlay on tvOS?|A feature that allows streaming from Apple devices to a TV.
+500|What is the Up Next queue?|A personalized list of content you're watching.
