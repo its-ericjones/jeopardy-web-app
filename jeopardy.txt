@@ -1,4 +1,4 @@
-Title: WWDC '25
+Title: Apple Software
 
 Category: iOS
 100|What is iOS?|Apple's mobile operating system used on iPhones.
