@@ -2,6 +2,15 @@
 
 A web-based Jeopardy game built for group presentations and interactive gameplay. Upload custom question sets via text files and manage team scoring in real-time.
 
+## 📸 Screenshots
+![Jeopardy Game Board](screenshots/game-board.png)
+
+*Main game board with categories and point values*
+
+![Question Modal](screenshots/question-modal.png)
+
+*Question display with team selection and scoring controls*
+
 ## 📁 Project Structure
 
 ### Core Files
@@ -16,16 +25,22 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 
 ## 🚀 Getting Started
 
-1. **Open the game**: Open `jeopardy.html` in a web browser
-2. **Upload content**: Click "Upload Jeopardy Board File" and select a `.txt` file
-3. **Add teams**: Use the "Add Team" button to create participating teams
+1. **Open the game**: Download the ZIP folder containing all files, and open `jeopardy.html` in a web browser
+
+    ![Upload Screen](screenshots/upload-screen.png)
+2. **Upload content**: Click "Browse..." and select a `.txt` file
+
+    ![Game Board Loaded](screenshots/board-loaded.png)
+3. **Add teams**: Use the "Add Team" button to create participating teams (you can do this before or after uploading the `.txt` file)
+    
+    ![Teams Added](screenshots/teams-added.png)
 4. **Play**: Click question values to reveal questions, show answers, and award/subtract points
 
 ## 📝 Creating Custom Game Files
 
 ### File Format
 
-Create a plain text file (`.txt`) with the following structure:
+Modify the existing plain text file (`.txt`) - with the following structure:
 
 ```
 Title: Your Game Title Here
