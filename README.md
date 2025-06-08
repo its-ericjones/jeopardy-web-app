@@ -36,6 +36,8 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
     ![Teams Added](screenshots/teams-added.png)
 4. **Play**: Click question values to reveal questions, show answers, and award/subtract points
 
+    ![Board Gameplay](screenshots/board-gameplay.png)
+
 ## 📝 Creating Custom Game Files
 
 ### File Format
