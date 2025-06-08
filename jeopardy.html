@@ -1,0 +1,81 @@
+<!-- ─────────────────────────────────────────────────────────────
+  Jeopardy — main page
+  Author:   Eric Jones
+  Created:  2025-06-07
+  License:  MIT
+  Purpose:  Loads the Jeopardy board, links CSS + JS modules.
+──────────────────────────────────────────────────────────────── -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeopardy</title>
+  <link rel="stylesheet" href="css/jeopardy.css">
+</head>
+<body>
+  <!-- Upload Controls: File input for Jeopardy board -->
+  <div id="upload-controls">
+    <label for="jeopardy-upload">Upload Jeopardy Board File:</label>
+    <input type="file" id="jeopardy-upload" accept=".txt" />
+  </div>
+
+  <!-- Game Title (hidden until board is loaded) -->
+  <h1 id="title"></h1>
+
+  <!-- Reset Board Button (hidden until board is loaded) -->
+  <div id="reset-board-container">
+    <button id="reset-board">Reset Board</button>
+  </div>
+
+  <!-- Jeopardy Game Board Table (hidden until board is loaded) -->
+  <table id="game" class="hide">
+    <thead>
+      <tr>
+        <th>Category 1</th>
+        <th>Category 2</th>
+        <th>Category 3</th>
+        <th>Category 4</th>
+        <th>Category 5</th>
+      </tr>
+    </thead>
+    <tbody id="game-body">
+      <!-- Board cells will be dynamically generated -->
+    </tbody>
+  </table>
+
+  <!-- Scores/Stats Panel for Teams -->
+  <div id="stats">
+    <h3>Scores</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Team</th>
+          <th>Score</th>
+          <th>Add</th>
+          <th>Subtract</th>
+        </tr>
+      </thead>
+      <tbody id="stats-body">
+        <!-- Teams will be dynamically added here -->
+      </tbody>
+    </table>
+    <button id="add-team">Add Team</button>
+  </div>
+
+  <!-- Prompt Modal for Question/Answer and Scoring -->
+  <div id="prompt">
+    <h2 id="prompt-question"></h2>
+    <h3 id="prompt-answer"></h3>
+    <button id="show-answer">Show Answer</button>
+    <div class="prompt-controls">
+      <label for="prompt-team-select">Select Team:</label>
+      <select id="prompt-team-select"></select>
+      <button id="prompt-add-points">Add Points</button>
+      <button id="prompt-subtract-points">Subtract Points</button>
+      <button id="prompt-cancel">Cancel</button>
+    </div>
+  </div>
+  <script src="js/jeopardy.js"></script>
+</body>
+</html>
