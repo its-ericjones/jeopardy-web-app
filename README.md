@@ -106,7 +106,7 @@ The game automatically saves:
 - Used/completed questions
 - Game title
 
-Data persists between browser sessions until manually reset.
+Data persists between browser sessions until manually reset by the `Reset Board` button or by clearing browser cache.
 
 ## 🔧 Technical Notes
 
