@@ -16,7 +16,7 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 ### Core Files
 
 - **`jeopardy.html`** - Main HTML structure with game board layout, scoring table, and modal elements
-- **`css/jeopardy.css`** - Complete stylesheet with responsive design and large fonts optimized for group presentations
+- **`css/jeopardy.css`** - Stylesheet with responsive design and large fonts optimized for group presentations
 - **`js/jeopardy.js`** - Game logic handling file uploads, board generation, team management, and persistent storage
 
 ### Sample Content
