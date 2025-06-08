@@ -23,7 +23,7 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 
 - **`jeopardy.txt`** - Example game file demonstrating the text format for creating custom Jeopardy boards
 
-## 🚀 Getting Started
+## ⏱️ Getting Started
 
 1. **Open the game**: Download the ZIP folder containing all files, and open `jeopardy.html` in a web browser
 
@@ -90,7 +90,7 @@ Category: Technology
 - **Board Reset**: Clear all data and start fresh
 - **Responsive Design**: Works on desktop and mobile devices
 
-## 🎯 Presentation Mode
+## 👩‍🏫 Presentation Mode
 
 The interface is optimized for group presentations with:
 - **Large text sizes** for visibility from a distance
