@@ -28,7 +28,7 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 1. **Open the game**: Download the ZIP folder containing all files, and open `jeopardy.html` in a web browser
 
     ![Upload Screen](screenshots/upload-screen.png)
-2. **Upload content**: Click "Browse..." and select a `.txt` file
+2. **Upload content**: Click "Browse..." and select the `.txt` file (see below for how to customize)
 
     ![Game Board Loaded](screenshots/board-loaded.png)
 3. **Add teams**: Use the "Add Team" button to create participating teams (you can do this before or after uploading the `.txt` file)
