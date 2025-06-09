@@ -33,6 +33,11 @@ input, textarea, select {
     padding: 4px 8px;
 }
 
+/* Override display block for specific elements */
+#upload-controls input {
+    margin: 0;
+}
+
 textarea { 
     padding:5px; 
 }
@@ -48,6 +53,15 @@ textarea {
 }
 
 /* Title Styling */
+#upload-title {
+    text-align: center;
+    font-size: 42px;
+    margin: 30px auto 20px;
+    line-height: 42px;
+    color: #111;
+    font-weight: bold;
+}
+
 #title {
     text-align: center;
     font-size: 36px;
@@ -212,12 +226,17 @@ input.team-name {
 #upload-controls label {
     color: #111;
     font-size: 18px;
-    margin-bottom: 12px;
+    margin-bottom: 0;
+    display: inline;
+    margin-right: 12px;
+    vertical-align: middle;
 }
 
 #upload-controls input[type="file"] {
     border: none;
     padding: 8px;
+    display: inline;
+    vertical-align: middle;
 }
 
 #add-team {

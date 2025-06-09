@@ -100,6 +100,8 @@ document.getElementById('jeopardy-upload').addEventListener('change', function(e
     const titleElem = document.getElementById('title');
     titleElem.textContent = title;
     titleElem.style.display = title ? 'block' : 'none';
+    // Hide the upload title
+    document.getElementById('upload-title').style.display = 'none';
     // Clear used cells ONLY on new upload
     forEachBoardCell((cell) => cell.classList.remove('used'));
     saveBoardState();
@@ -212,8 +214,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedTitle) {
     titleElem.textContent = savedTitle;
     titleElem.style.display = 'block';
+    // Hide upload title if game is loaded
+    document.getElementById('upload-title').style.display = 'none';
     } else {
     titleElem.style.display = 'none';
+    // Show upload title if no game is loaded
+    document.getElementById('upload-title').style.display = 'block';
     }
     if (saved) {
     populateJeopardyBoardFromText(saved);
@@ -221,6 +227,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Always show reset button container after board is loaded
     const resetContainer = document.getElementById('reset-board-container');
     if (resetContainer) resetContainer.style.display = 'block';
+    // Hide upload title when game board is loaded
+    document.getElementById('upload-title').style.display = 'none';
     } else {
     // Generate empty board structure even if no saved data
     generateGameBoard();
@@ -386,6 +394,7 @@ document.getElementById('show-answer').onclick = function() {
 // On reset, clear all storage and reload the page
 document.getElementById('reset-board').onclick = function() {
     document.getElementById('upload-controls').style.display = '';
+    document.getElementById('upload-title').style.display = 'block';
     const resetContainer = document.getElementById('reset-board-container');
     if (resetContainer) resetContainer.style.display = 'none';
     // Remove the title from localStorage so it doesn't reappear after reload
