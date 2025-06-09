@@ -56,7 +56,6 @@ textarea {
     color: #111;
     display: none;
     padding-top: 40px;
-    padding-bottom: 24px;
 }
 textarea#title {
     height:50px;
@@ -66,7 +65,7 @@ textarea#title {
 /* Reset Button Container */
 #reset-board-container {
     text-align: center;
-    margin: 10px;
+    margin: 30px auto;
     display: none;
 }
 /* Game Board Table */
