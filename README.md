@@ -2,7 +2,7 @@
 
 A web-based Jeopardy game built for group presentations and interactive gameplay. Upload custom question sets via text files and manage team scoring in real-time.
 
-## 📸 Screenshots
+## Screenshots
 ![Jeopardy Game Board](screenshots/game-board.png)
 
 *Main game board with categories and point values*
@@ -11,7 +11,7 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 
 *Question display with team selection and scoring controls*
 
-## 📁 Project Structure
+## Project Structure
 
 ### Core Files
 
@@ -23,7 +23,7 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 
 - **`jeopardy.txt`** - Example game file demonstrating the text format for creating custom Jeopardy boards
 
-## ⏱️ Getting Started
+## Getting Started
 
 1. **Open the game**: Download the ZIP folder containing all files, and open `jeopardy.html` in a web browser
 
@@ -38,7 +38,7 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 
     ![Board Gameplay](screenshots/board-gameplay.png)
 
-## 📝 Creating Custom Game Files
+## Creating Custom Game Files
 
 ### File Format
 
@@ -83,7 +83,7 @@ Category: Technology
 200|What is spatial audio in visionOS?|A technology that provides immersive 3D sound.
 ```
 
-## 🎮 Gameplay Features
+## Gameplay Features
 
 - **Persistent Storage**: Game state saves automatically to browser localStorage
 - **Team Management**: Add multiple teams, edit names, track scores
@@ -92,7 +92,7 @@ Category: Technology
 - **Board Reset**: Clear all data and start fresh
 - **Responsive Design**: Works on desktop and mobile devices
 
-## 👩‍🏫 Presentation Mode
+## Presentation Mode
 
 The interface is optimized for group presentations with:
 - **Large text sizes** for visibility from a distance
@@ -100,7 +100,7 @@ The interface is optimized for group presentations with:
 - **Simple controls** for easy operation during games
 - **Full-screen modal** for questions and answers
 
-## 💾 Data Persistence
+## Data Persistence
 
 The game automatically saves:
 - Current game board content
@@ -110,7 +110,7 @@ The game automatically saves:
 
 Data persists between browser sessions until manually reset by the `Reset Board` button or by clearing browser cache.
 
-## 🔧 Technical Notes
+## Technical Notes
 
 - **No server required**: Runs entirely in the browser
 - **Modern browsers**: Uses ES6+ JavaScript features
