@@ -80,6 +80,7 @@ textarea#title {
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     overflow: hidden;
     border: 1.5px solid #222;
+    box-sizing: border-box;
 }
 #game thead th {
     color: #fff;
@@ -88,6 +89,8 @@ textarea#title {
     padding: 18px 0;
     background: #111;
     border: none;
+    border-right: none;
+    border-left: none;
     letter-spacing: 1px;
 }
 #game tbody td {
@@ -169,6 +172,7 @@ textarea#title {
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     padding: 18px;
     border: 1.5px solid #222;
+    box-sizing: border-box;
 }
 #stats h3 {
     color: #111;
