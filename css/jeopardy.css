@@ -228,13 +228,13 @@ input.team-name {
     font-size: 18px;
     margin-bottom: 0;
     display: inline;
-    margin-right: 12px;
+    margin-right: 6px;
     vertical-align: middle;
 }
 
 #upload-controls input[type="file"] {
     border: none;
-    padding: 8px;
+    padding: 6px;
     display: inline;
     vertical-align: middle;
 }
