@@ -92,14 +92,6 @@ Category: Technology
 - **Board Reset**: Clear all data and start fresh
 - **Responsive Design**: Works on desktop and mobile devices
 
-## Presentation Mode
-
-The interface is optimized for group presentations with:
-- **Large text sizes** for visibility from a distance
-- **High contrast** black and white color scheme
-- **Simple controls** for easy operation during games
-- **Full-screen modal** for questions and answers
-
 ## Data Persistence
 
 The game automatically saves:
