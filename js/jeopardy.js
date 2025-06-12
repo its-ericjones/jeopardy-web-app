@@ -1,11 +1,12 @@
 /* ────────────────────────────────────────────────────────────────
   Jeopardy — game logic
-  Author:   Eric Jones
   Created:  2025-06-07
-  License:  MIT
-  Purpose:
-    Builds a 5×5 Jeopardy board from a plain-text file, handles
-    scoring, and persists state in localStorage.
+
+  Copyright (c) 2025 Eric Jones
+  Licensed under the MIT License. See LICENSE.md for details.
+
+  Purpose:  Builds a 5×5 Jeopardy board from a plain-text file, 
+            handles scoring, and persists state in localStorage.
 ──────────────────────────────────────────────────────────────── */
 // --- Utility Functions ---
 // Generic localStorage helper
