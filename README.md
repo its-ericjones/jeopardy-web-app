@@ -115,4 +115,5 @@ Data persists between browser sessions until manually reset by the `Reset Board`
 **Created**: 2025-06-07
 
   Copyright (c) 2025 Eric Jones
+  
   Licensed under the MIT License. See LICENSE.md for details.
