@@ -1,6 +1,6 @@
 # Jeopardy Game
 
-A web-based Jeopardy game built for group presentations and interactive gameplay. Upload custom question sets via text files and manage team scoring in real-time.
+A web-based Jeopardy game built for group presentations and interactive gameplay. Upload custom question sets with text files and manage team scoring in real-time.
 
 ## Screenshots
 ![Jeopardy Game Board](screenshots/game-board.png)
@@ -25,7 +25,7 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 
 ## Getting Started
 
-1. **Open the game**: Download the ZIP folder containing all files, and open `jeopardy.html` in a web browser
+1. **Open the game**: Download the ZIP file from the green dropdown button at the top of the page, then open `jeopardy.html` in a web browser
 
     ![Upload Screen](screenshots/upload-screen.png)
 2. **Upload content**: Click "Browse..." and select the `.txt` file (see below for how to customize)
@@ -106,7 +106,7 @@ Data persists between browser sessions until manually reset by the `Reset Board`
 
 - **No server required**: Runs entirely in the browser
 - **Modern browsers**: Uses ES6+ JavaScript features
-- **File uploads**: Processes local text files via FileReader API
+- **File uploads**: Processes local text files with FileReader API
 - **Responsive**: CSS Grid and Flexbox for layout
 - **Modular**: Separated HTML/CSS/JS for maintainability
 
@@ -114,6 +114,6 @@ Data persists between browser sessions until manually reset by the `Reset Board`
 
 **Created**: 2025-06-07
 
-  Copyright (c) 2025 Eric Jones
+Copyright (c) 2025 Eric Jones
   
-  Licensed under the MIT License. See LICENSE.md for details.
+Licensed under the MIT License. See LICENSE.md for details.
