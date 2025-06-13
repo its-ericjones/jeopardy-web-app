@@ -1,13 +1,13 @@
 # Jeopardy Game
 
-A web-based Jeopardy game built for group presentations and interactive gameplay. Upload custom question sets via text files and manage team scoring in real-time.
+A web-based Jeopardy game for group presentations and interactive gameplay. Build custom game boards through an intuitive form interface or upload existing text files for quick setup.
 
 ## Screenshots
-![Jeopardy Game Board](screenshots/game-board.png)
+![Jeopardy Game Board](screenshots/game-board-early2000s.png)
 
 *Main game board with categories and point values*
 
-![Question Modal](screenshots/question-modal.png)
+![Question Modal](screenshots/question-modal-early2000s.png)
 
 *Question display with team selection and scoring controls*
 
@@ -27,45 +27,30 @@ A web-based Jeopardy game built for group presentations and interactive gameplay
 
 1. **Open the game**: Download the ZIP folder containing all files, and open `jeopardy.html` in a web browser
 
-    ![Upload Screen](screenshots/upload-screen.png)
-2. **Upload content**: Click "Browse..." and select the `.txt` file (see below for how to customize)
+    ![Upload Screen](screenshots/homepage.png)
 
-    ![Game Board Loaded](screenshots/board-loaded.png)
-3. **Add teams**: Use the "Add Team" button to create participating teams (you can do this before or after uploading the `.txt` file)
-    
-    ![Teams Added](screenshots/teams-added.png)
-4. **Play**: Click question values to reveal questions, show answers, and award/subtract points
+2. **Create or use a game board**:
+   
+   **Option A: Create a new board**
+   - Click "Create Board Manually" on the home screen
+   - Fill in the form with your game title, five categories, and five questions/answers per category
+   - When complete, click either:
+     - "Create Game Board" to generate your game, or
+     - "Create and Download" to also save a text file for future use
 
-    ![Board Gameplay](screenshots/board-gameplay.png)
+    ![Game Board Creation](screenshots/board-creation-early2000s.png)
 
-## Creating Custom Game Files
+   **Option B: Use an existing board**
+   - Click "Upload Text File" and select your previously saved game file
+   - The board will be automatically created and displayed
 
-### File Format
+3. **Add teams**: Use the "Add Team" button to create participating teams
 
-Modify the existing plain text file (`.txt`) - with the following structure:
+4. **Play the game**: Click on values to reveal answers, show questions, and award points
 
-```
-Title: Your Game Title Here
+    ![Board Gameplay](screenshots/board-gameplay-early2000s.png)
 
-Category: First Category Name
-100|What is the answer?|This is the question text
-200|What is another answer?|This is a harder question
-300|What is a third answer?|This is an even harder question
-400|What is a fourth answer?|This is a difficult question
-500|What is a fifth answer?|This is the hardest question
-
-Category: Second Category Name
-100|What is the answer?|This is the question text
-200|What is another answer?|This is a harder question
-300|What is a third answer?|This is an even harder question
-400|What is a fourth answer?|This is a difficult question
-500|What is a fifth answer?|This is the hardest question
-
-Category: Third Category Name
-...continue pattern...
-```
-
-### Format Rules
+## Exported Text File Breakdown
 
 1. **Title Line** (optional): `Title: Your Game Title`
 2. **Category Headers**: `Category: Category Name Here`
@@ -76,29 +61,27 @@ Category: Third Category Name
 4. **Five Categories**: Each with exactly 5 questions (100-500 points)
 5. **Blank Lines**: Ignored by the parser
 
-### Example Entry
+### Example
 ```
-Category: Technology
+Title: Technology Trivia
+
+Category: Modern Tech
 100|What is Face ID?|A facial recognition system for securely unlocking iPhones.
 200|What is spatial audio in visionOS?|A technology that provides immersive 3D sound.
+300|What is machine learning?|The field of AI that enables computers to learn from data.
+400|What is quantum computing?|Computing using quantum bits that can exist in multiple states.
+500|What is blockchain?|A distributed ledger technology behind cryptocurrencies.
 ```
 
 ## Gameplay Features
 
-- **Persistent Storage**: Game state saves automatically to browser localStorage
-- **Team Management**: Add multiple teams, edit names, track scores
-- **Question Reveal**: Click values → show question → show answer → award points
-- **Score Tracking**: Add/subtract points with automatic calculation
-- **Board Reset**: Clear all data and start fresh
+- **Team Scoring System**: Add multiple teams, track and edit scores in real-time
+- **Flexible Creation**: Build boards through forms or upload existing files
+- **Optional Download**: Save boards as text files for future games
+- **Persistent Storage**: Game state saves automatically between browser sessions
+- **Interactive Reveal**: Click values → show question → show answer → award points
+- **Form Validation**: Real-time feedback ensures all required fields are completed
 - **Responsive Design**: Works on desktop and mobile devices
-
-## Presentation Mode
-
-The interface is optimized for group presentations with:
-- **Large text sizes** for visibility from a distance
-- **High contrast** black and white color scheme
-- **Simple controls** for easy operation during games
-- **Full-screen modal** for questions and answers
 
 ## Data Persistence
 
@@ -114,12 +97,12 @@ Data persists between browser sessions until manually reset by the `Reset Board`
 
 - **No server required**: Runs entirely in the browser
 - **Modern browsers**: Uses ES6+ JavaScript features
-- **File uploads**: Processes local text files via FileReader API
+- **File uploads**: Processes local text files with FileReader API
 - **Responsive**: CSS Grid and Flexbox for layout
 - **Modular**: Separated HTML/CSS/JS for maintainability
 
 ---
 
-**Author**: Eric Jones  
-**License**: MIT  
-**Created**: 2025-06-07
+Copyright (c) 2025 Eric Jones
+
+Licensed under the MIT License. See LICENSE.md for details.
