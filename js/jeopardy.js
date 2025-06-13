@@ -403,9 +403,8 @@ document.getElementById('reset-board').onclick = function() {
     document.getElementById('title').style.display = 'none';
     clearAllStorage();
     
-    // Clear all form fields
+    // Clear any existing categories in the form
     categoriesContainer.innerHTML = '';
-    document.getElementById('board-title').value = '';
     
     location.reload();
 };
@@ -416,7 +415,6 @@ const showUploadBtn = document.getElementById('show-upload');
 const showCreateFormBtn = document.getElementById('show-create-form');
 const createFormDiv = document.getElementById('create-form');
 const generateBoardBtn = document.getElementById('generate-board');
-const cancelCreateBtn = document.getElementById('cancel-create');
 const categoriesContainer = document.getElementById('categories-container');
 
 // Default values for new categories and questions
@@ -436,9 +434,6 @@ showUploadBtn.addEventListener('click', function() {
 // Show create form option
 showCreateFormBtn.addEventListener('click', function() {
     createFormDiv.classList.remove('hide');
-    
-    // Always clear the title field to ensure it starts empty
-    document.getElementById('board-title').value = '';
     
     // Initialize form if it's empty
     if (categoriesContainer.children.length === 0) {
@@ -462,11 +457,6 @@ showCreateFormBtn.addEventListener('click', function() {
     document.querySelectorAll('.validation-error').forEach(field => {
         field.classList.remove('validation-error');
     });
-});
-
-// Cancel creation and return to options
-cancelCreateBtn.addEventListener('click', function() {
-    createFormDiv.classList.add('hide');
 });
 
 // Add a new category to the form
