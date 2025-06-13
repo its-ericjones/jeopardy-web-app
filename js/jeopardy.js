@@ -482,7 +482,7 @@ function addCategory() {
     categoryHeader.className = 'category-header';
     categoryHeader.innerHTML = `
         <label for="category-${categoryIndex}">Category ${categoryIndex + 1}:</label>
-        <input type="text" id="category-${categoryIndex}" value="${DEFAULT_CATEGORY} ${categoryIndex + 1}" class="category-name required-field" required>
+        <input type="text" id="category-${categoryIndex}" placeholder="Enter category name" class="category-name required-field" required>
     `;
     
     // Create questions container
