@@ -103,6 +103,8 @@ document.getElementById('jeopardy-upload').addEventListener('change', function(e
     // Clear used cells ONLY on new upload
     forEachBoardCell((cell) => cell.classList.remove('used'));
     saveBoardState();
+    // Hide upload controls
+    document.getElementById('upload-controls').style.display = 'none';
     };
     reader.readAsText(file);
 });
@@ -221,9 +223,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Always show reset button container after board is loaded
     const resetContainer = document.getElementById('reset-board-container');
     if (resetContainer) resetContainer.style.display = 'block';
+    // Hide initial controls since we're loading from storage
+    document.getElementById('upload-controls').style.display = 'none';
     } else {
     // Generate empty board structure even if no saved data
     generateGameBoard();
+    // Initially only show the option buttons, not the file input or create form
+    fileUploadDiv.classList.add('hide');
+    createFormDiv.classList.add('hide');
     }
     loadTeams();
 });
@@ -386,11 +393,291 @@ document.getElementById('show-answer').onclick = function() {
 // On reset, clear all storage and reload the page
 document.getElementById('reset-board').onclick = function() {
     document.getElementById('upload-controls').style.display = '';
+    // Show options, hide file input and create form
+    fileUploadDiv.classList.add('hide');
+    createFormDiv.classList.add('hide');
+    
     const resetContainer = document.getElementById('reset-board-container');
     if (resetContainer) resetContainer.style.display = 'none';
+    
     // Remove the title from localStorage so it doesn't reappear after reload
     localStorage.removeItem('jeopardyTitle');
     document.getElementById('title').style.display = 'none';
     clearAllStorage();
+    
+    // Clear any existing categories in the form
+    categoriesContainer.innerHTML = '';
+    
     location.reload();
 };
+
+// --- Board Creation Form Functionality ---
+// Initialize form elements
+const showUploadBtn = document.getElementById('show-upload');
+const showCreateFormBtn = document.getElementById('show-create-form');
+const fileUploadDiv = document.getElementById('file-upload');
+const createFormDiv = document.getElementById('create-form');
+const generateBoardBtn = document.getElementById('generate-board');
+const cancelCreateBtn = document.getElementById('cancel-create');
+const categoriesContainer = document.getElementById('categories-container');
+
+// Default values for new categories and questions
+const DEFAULT_CATEGORY = "New Category";
+const DEFAULT_VALUES = [100, 200, 300, 400, 500];
+const DEFAULT_QUESTIONS = Array(5).fill().map(() => ({ value: "", question: "", answer: "" }));
+
+// Show file upload option
+showUploadBtn.addEventListener('click', function() {
+    fileUploadDiv.classList.remove('hide');
+    createFormDiv.classList.add('hide');
+});
+
+// Show create form option
+showCreateFormBtn.addEventListener('click', function() {
+    fileUploadDiv.classList.add('hide');
+    createFormDiv.classList.remove('hide');
+    
+    // Initialize form if it's empty
+    if (categoriesContainer.children.length === 0) {
+        for (let i = 0; i < 5; i++) {
+            addCategory();
+        }
+    }
+    
+    // Add validation listeners and process initial field values
+    addValidationListeners();
+    
+    // Process any fields that already have content (like default category names)
+    document.querySelectorAll('.required-field').forEach(field => {
+        if (field.value.trim() !== '') {
+            field.classList.add('has-content');
+        }
+    });
+    
+    // Clear any previous validation errors
+    document.getElementById('validation-message').style.display = 'none';
+    document.querySelectorAll('.validation-error').forEach(field => {
+        field.classList.remove('validation-error');
+    });
+});
+
+// Cancel creation and return to options
+cancelCreateBtn.addEventListener('click', function() {
+    createFormDiv.classList.add('hide');
+});
+
+// Add a new category to the form
+function addCategory() {
+    const categoryIndex = document.querySelectorAll('.category-section').length;
+    
+    // Only allow up to 5 categories (5x5 game board)
+    if (categoryIndex >= 5) return;
+    
+    // Create category container
+    const categorySection = document.createElement('div');
+    categorySection.className = 'category-section';
+    categorySection.dataset.index = categoryIndex;
+    
+    // Create category header with name input
+    const categoryHeader = document.createElement('div');
+    categoryHeader.className = 'category-header';
+    categoryHeader.innerHTML = `
+        <label for="category-${categoryIndex}">Category ${categoryIndex + 1}:</label>
+        <input type="text" id="category-${categoryIndex}" value="${DEFAULT_CATEGORY} ${categoryIndex + 1}" class="category-name required-field" required>
+    `;
+    
+    // Create questions container
+    const questionsContainer = document.createElement('div');
+    questionsContainer.className = 'questions-container';
+    
+    // Add question inputs for this category
+    DEFAULT_VALUES.forEach((value, qIndex) => {
+        const questionItem = document.createElement('div');
+        questionItem.className = 'question-item';
+        questionItem.innerHTML = `
+            <div class="question-value">${value}</div>
+            <input type="text" class="question-answer required-field" placeholder="Answer (shown to players)" data-value="${value}" required>
+            <input type="text" class="question-question required-field" placeholder="Question (correct response)" data-value="${value}" required>
+        `;
+        questionsContainer.appendChild(questionItem);
+    });
+    
+    // Assemble and add to form
+    categorySection.appendChild(categoryHeader);
+    categorySection.appendChild(questionsContainer);
+    categoriesContainer.appendChild(categorySection);
+}
+
+// No longer using addCategoryBtn
+
+// Generate jeopardy board from form data
+generateBoardBtn.addEventListener('click', function() {
+    const boardTitle = document.getElementById('board-title').value.trim();
+    
+    // Validate board title
+    if (!boardTitle) {
+        alert("Please enter a game title.");
+        document.getElementById('board-title').focus();
+        return;
+    }
+    
+    const categories = [];
+    const allQuestions = [];
+    let hasEmptyFields = false;
+    let firstEmptyField = null;
+    
+    // Check if we have exactly 5 categories
+    const categoryCount = document.querySelectorAll('.category-section').length;
+    if (categoryCount < 5) {
+        alert("Please create all 5 categories for a complete game board.");
+        return;
+    }
+    
+    // Collect all category data
+    document.querySelectorAll('.category-section').forEach((catSection, catIndex) => {
+        if (catIndex >= 5) return; // Only use first 5 categories
+        
+        const categoryNameInput = catSection.querySelector('.category-name');
+        const categoryName = categoryNameInput.value.trim();
+        
+        // Validate category name
+        if (!categoryName) {
+            hasEmptyFields = true;
+            if (!firstEmptyField) firstEmptyField = categoryNameInput;
+            return;
+        }
+        
+        categories.push(categoryName);
+        
+        const categoryQuestions = [];
+        catSection.querySelectorAll('.question-item').forEach((qItem, qIndex) => {
+            const value = qItem.querySelector('.question-value').textContent;
+            const answerInput = qItem.querySelector('.question-answer');
+            const questionInput = qItem.querySelector('.question-question');
+            const answer = answerInput.value.trim();
+            const question = questionInput.value.trim();
+            
+            // Validate answer and question
+            if (!answer) {
+                hasEmptyFields = true;
+                if (!firstEmptyField) firstEmptyField = answerInput;
+            }
+            
+            if (!question) {
+                hasEmptyFields = true;
+                if (!firstEmptyField) firstEmptyField = questionInput;
+            }
+            
+            categoryQuestions.push({
+                value: value,
+                answer: answer,
+                question: question
+            });
+        });
+        
+        allQuestions.push(categoryQuestions);
+    });
+    
+    // Check for empty fields
+    if (hasEmptyFields) {
+        const validationMessage = document.getElementById('validation-message');
+        validationMessage.textContent = "Please fill out all required fields";
+        validationMessage.style.display = 'block';
+        
+        // Highlight all empty fields
+        document.querySelectorAll('.required-field').forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('validation-error');
+                field.classList.remove('has-content');
+            } else {
+                field.classList.remove('validation-error');
+                field.classList.add('has-content');
+            }
+        });
+        
+        // Focus on the first empty field
+        if (firstEmptyField) firstEmptyField.focus();
+        return;
+    }
+    
+    // Clear any validation errors if all fields are filled
+    document.getElementById('validation-message').style.display = 'none';
+    document.querySelectorAll('.validation-error').forEach(field => {
+        field.classList.remove('validation-error');
+    });
+    
+    // All validation passed, generate text representation of board
+    let boardText = `Title: ${boardTitle}\n\n`;
+    
+    categories.forEach((category, catIndex) => {
+        boardText += `Category: ${category}\n`;
+        
+        allQuestions[catIndex].forEach(q => {
+            boardText += `${q.value}|${q.answer}|${q.question}\n`;
+        });
+        
+        boardText += '\n';
+    });
+    
+    // Save board to localStorage
+    saveTitle(boardTitle);
+    saveBoardText(boardText);
+    
+    // Create game board
+    populateJeopardyBoardFromText(boardText);
+    
+    // Hide form
+    document.getElementById('upload-controls').style.display = 'none';
+    
+    // Show reset button
+    const resetContainer = document.getElementById('reset-board-container');
+    if (resetContainer) resetContainer.style.display = 'block';
+    
+    // Set and show title
+    const titleElem = document.getElementById('title');
+    titleElem.textContent = boardTitle;
+    titleElem.style.display = 'block';
+    
+    // Offer file download
+    downloadBoardFile(boardText, `${boardTitle.replace(/\s+/g, '-').toLowerCase()}.txt`);
+});
+
+// Download generated board as a text file
+function downloadBoardFile(content, filename) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+// Add input event listeners to clear validation styling
+function addValidationListeners() {
+    document.querySelectorAll('.required-field').forEach(field => {
+        // Initially check if field has content and apply styling
+        if (field.value.trim() !== '') {
+            field.classList.add('has-content');
+        } else {
+            field.classList.remove('has-content');
+        }
+        
+        // Add event listener for input changes
+        field.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                this.classList.remove('validation-error');
+                this.classList.add('has-content');
+                
+                // Hide validation message if all fields are filled
+                const emptyFields = Array.from(document.querySelectorAll('.required-field')).filter(f => !f.value.trim());
+                if (emptyFields.length === 0) {
+                    document.getElementById('validation-message').style.display = 'none';
+                }
+            } else {
+                // If field is emptied, remove has-content class
+                this.classList.remove('has-content');
+            }
+        });
+    });
+}
