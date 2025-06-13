@@ -63,14 +63,14 @@ A web-based Jeopardy game for group presentations and interactive gameplay. Buil
 
 ### Example
 ```
-Title: Technology Trivia
+Title: Early 2000s Pop Culture
 
-Category: Modern Tech
-100|What is Face ID?|A facial recognition system for securely unlocking iPhones.
-200|What is spatial audio in visionOS?|A technology that provides immersive 3D sound.
-300|What is machine learning?|The field of AI that enables computers to learn from data.
-400|What is quantum computing?|Computing using quantum bits that can exist in multiple states.
-500|What is blockchain?|A distributed ledger technology behind cryptocurrencies.
+Category: Blockbuster Movies
+100|What is Gladiator?|The 2000 film that won Best Picture and starred Russell Crowe as a Roman general turned slave.
+200|What is The Lord of the Rings?|This fantasy trilogy began in 2001 and concluded in 2003 with The Return of the King.
+300|What is Avatar?|James Cameron directed this 2009 sci-fi epic, which became the highest-grossing film of the decade.
+400|What is The Dark Knight?|Heath Ledger posthumously won an Oscar for playing the Joker in this 2008 superhero film.
+500|What is The Bourne Identity?|This 2002 thriller, directed by Doug Liman and based on a Robert Ludlum novel, launched a successful action franchise starring Matt Damon as a trained assassin suffering from amnesia.
 ```
 
 ## Gameplay Features
