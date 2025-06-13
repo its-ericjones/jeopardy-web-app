@@ -228,8 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
     // Generate empty board structure even if no saved data
     generateGameBoard();
-    // Initially only show the option buttons, not the file input or create form
-    fileUploadDiv.classList.add('hide');
+    // Initially only show the option buttons, not the create form
     createFormDiv.classList.add('hide');
     }
     loadTeams();
@@ -393,8 +392,7 @@ document.getElementById('show-answer').onclick = function() {
 // On reset, clear all storage and reload the page
 document.getElementById('reset-board').onclick = function() {
     document.getElementById('upload-controls').style.display = '';
-    // Show options, hide file input and create form
-    fileUploadDiv.classList.add('hide');
+    // Hide create form
     createFormDiv.classList.add('hide');
     
     const resetContainer = document.getElementById('reset-board-container');
@@ -415,7 +413,6 @@ document.getElementById('reset-board').onclick = function() {
 // Initialize form elements
 const showUploadBtn = document.getElementById('show-upload');
 const showCreateFormBtn = document.getElementById('show-create-form');
-const fileUploadDiv = document.getElementById('file-upload');
 const createFormDiv = document.getElementById('create-form');
 const generateBoardBtn = document.getElementById('generate-board');
 const cancelCreateBtn = document.getElementById('cancel-create');
@@ -426,15 +423,17 @@ const DEFAULT_CATEGORY = "New Category";
 const DEFAULT_VALUES = [100, 200, 300, 400, 500];
 const DEFAULT_QUESTIONS = Array(5).fill().map(() => ({ value: "", question: "", answer: "" }));
 
-// Show file upload option
+// Trigger the file dialog when Upload Text File button is clicked
 showUploadBtn.addEventListener('click', function() {
-    fileUploadDiv.classList.remove('hide');
+    // Hide the create form if it's visible
     createFormDiv.classList.add('hide');
+    
+    // Programmatically click the file input to open file dialog
+    document.getElementById('jeopardy-upload').click();
 });
 
 // Show create form option
 showCreateFormBtn.addEventListener('click', function() {
-    fileUploadDiv.classList.add('hide');
     createFormDiv.classList.remove('hide');
     
     // Initialize form if it's empty

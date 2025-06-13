@@ -16,16 +16,14 @@
 <body>
   <!-- Upload Controls: File input or Create Board -->
   <div id="upload-controls">
-    <h2>Create Your 5×5 Jeopardy Board</h2>
+    <h2>Create Your Own Jeopardy</h2>
     <div class="option-buttons">
       <button id="show-upload">Upload Text File</button>
       <button id="show-create-form">Create Board Manually</button>
     </div>
     
-    <div id="file-upload" class="hide">
-      <label for="jeopardy-upload">Upload Jeopardy Board File:</label>
-      <input type="file" id="jeopardy-upload" accept=".txt" />
-    </div>
+    <!-- Hidden file input that will be triggered by the Upload button -->
+    <input type="file" id="jeopardy-upload" accept=".txt" style="display: none;" />
     
     <div id="create-form" class="hide">
       <div class="form-section">
