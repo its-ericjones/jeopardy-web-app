@@ -14,10 +14,35 @@
   <link rel="stylesheet" href="css/jeopardy.css">
 </head>
 <body>
-  <!-- Upload Controls: File input for Jeopardy board -->
+  <!-- Upload Controls: File input or Create Board -->
   <div id="upload-controls">
-    <label for="jeopardy-upload">Upload Jeopardy Board File:</label>
-    <input type="file" id="jeopardy-upload" accept=".txt" />
+    <h2>Create Your 5×5 Jeopardy Board</h2>
+    <div class="option-buttons">
+      <button id="show-upload">Upload Text File</button>
+      <button id="show-create-form">Create Board Manually</button>
+    </div>
+    
+    <div id="file-upload" class="hide">
+      <label for="jeopardy-upload">Upload Jeopardy Board File:</label>
+      <input type="file" id="jeopardy-upload" accept=".txt" />
+    </div>
+    
+    <div id="create-form" class="hide">
+      <div class="form-section">
+        <label for="board-title">Game Title:</label>
+        <input type="text" id="board-title" placeholder="Enter a title for your game" class="required-field" required>
+      </div>
+      
+      <div id="categories-container">
+        <!-- Category inputs will be generated here -->
+      </div>
+      
+      <div id="validation-message"></div>
+      <div class="form-actions">
+        <button id="generate-board">Create Game Board</button>
+        <button id="cancel-create">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <!-- Game Title (hidden until board is loaded) -->
