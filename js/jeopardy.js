@@ -1,11 +1,12 @@
 /* ────────────────────────────────────────────────────────────────
   Jeopardy — game logic
-  Author:   Eric Jones
   Created:  2025-06-07
-  License:  MIT
-  Purpose:
-    Builds a 5×5 Jeopardy board from a plain-text file, handles
-    scoring, and persists state in localStorage.
+
+  Copyright (c) 2025 Eric Jones
+  Licensed under the MIT License. See LICENSE.md for details.
+
+  Purpose:  Builds a 5×5 Jeopardy board from a plain-text file, 
+            handles scoring, and persists state in localStorage.
 ──────────────────────────────────────────────────────────────── */
 // --- Utility Functions ---
 // Generic localStorage helper
@@ -415,6 +416,7 @@ const showUploadBtn = document.getElementById('show-upload');
 const showCreateFormBtn = document.getElementById('show-create-form');
 const createFormDiv = document.getElementById('create-form');
 const generateBoardBtn = document.getElementById('generate-board');
+const generateDownloadBtn = document.getElementById('generate-download');
 const categoriesContainer = document.getElementById('categories-container');
 
 // Default values for new categories and questions
@@ -503,15 +505,15 @@ function addCategory() {
 
 // No longer using addCategoryBtn
 
-// Generate jeopardy board from form data
-generateBoardBtn.addEventListener('click', function() {
+// Function to create a game board from form data
+function createBoardFromForm(shouldDownload) {
     const boardTitle = document.getElementById('board-title').value.trim();
     
     // Validate board title
     if (!boardTitle) {
         alert("Please enter a game title.");
         document.getElementById('board-title').focus();
-        return;
+        return null;
     }
     
     const categories = [];
@@ -523,7 +525,7 @@ generateBoardBtn.addEventListener('click', function() {
     const categoryCount = document.querySelectorAll('.category-section').length;
     if (categoryCount < 5) {
         alert("Please create all 5 categories for a complete game board.");
-        return;
+        return null;
     }
     
     // Collect all category data
@@ -590,7 +592,7 @@ generateBoardBtn.addEventListener('click', function() {
         
         // Focus on the first empty field
         if (firstEmptyField) firstEmptyField.focus();
-        return;
+        return null;
     }
     
     // Clear any validation errors if all fields are filled
@@ -631,8 +633,25 @@ generateBoardBtn.addEventListener('click', function() {
     titleElem.textContent = boardTitle;
     titleElem.style.display = 'block';
     
-    // Offer file download
-    downloadBoardFile(boardText, `${boardTitle.replace(/\s+/g, '-').toLowerCase()}.txt`);
+    // Return the board text and title for potential download
+    return {
+        text: boardText,
+        title: boardTitle
+    };
+}
+
+// Generate jeopardy board from form data (without download)
+generateBoardBtn.addEventListener('click', function() {
+    createBoardFromForm(false);
+});
+
+// Generate jeopardy board from form data and download the file
+generateDownloadBtn.addEventListener('click', function() {
+    const boardData = createBoardFromForm(true);
+    if (boardData) {
+        // Download the generated board as a text file
+        downloadBoardFile(boardData.text, `${boardData.title.replace(/\s+/g, '-').toLowerCase()}.txt`);
+    }
 });
 
 // Download generated board as a text file
