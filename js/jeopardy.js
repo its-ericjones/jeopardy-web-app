@@ -403,8 +403,9 @@ document.getElementById('reset-board').onclick = function() {
     document.getElementById('title').style.display = 'none';
     clearAllStorage();
     
-    // Clear any existing categories in the form
+    // Clear all form fields
     categoriesContainer.innerHTML = '';
+    document.getElementById('board-title').value = '';
     
     location.reload();
 };
@@ -435,6 +436,9 @@ showUploadBtn.addEventListener('click', function() {
 // Show create form option
 showCreateFormBtn.addEventListener('click', function() {
     createFormDiv.classList.remove('hide');
+    
+    // Always clear the title field to ensure it starts empty
+    document.getElementById('board-title').value = '';
     
     // Initialize form if it's empty
     if (categoriesContainer.children.length === 0) {
