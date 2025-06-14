@@ -159,6 +159,7 @@ textarea {
 .form-actions {
     text-align: center;
     margin: 30px 0 10px;
+    padding-top: 50px;
 }
 
 .form-actions button {
@@ -343,6 +344,7 @@ textarea#title {
     padding: 18px;
     border: 1px solid rgba(0,0,0,0.08);
     box-sizing: border-box;
+    display: none; /* Hide by default */
 }
 #stats h3 {
     color: #111;
@@ -511,6 +513,16 @@ input.team-name {
 .has-content {
     background-color: #f8f9fa;
     border-color: #28a745 !important;
+}
+
+/* Show stats when game is visible */
+#game:not(.hide) ~ #stats {
+    display: block;
+}
+
+/* Hide stats when create form is visible */
+#create-form:not(.hide) ~ #stats {
+    display: none !important;
 }
 
 @media (max-width: 700px) {

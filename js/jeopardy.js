@@ -172,6 +172,8 @@ function populateJeopardyBoardFromText(text) {
     document.getElementById('game').classList.remove('hide');
     addCellClickHandlers();
     document.getElementById('upload-controls').style.display = 'none';
+    // Show the stats table when board is displayed
+    document.getElementById('stats').style.display = 'block';
     // Always show reset button container after board is loaded
     const resetContainer = document.getElementById('reset-board-container');
     if (resetContainer) resetContainer.style.display = 'block';
@@ -238,6 +240,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // --- Scoring Implementation ---
 const stats = document.getElementById('stats');
 const statsBody = document.getElementById('stats-body');
+
+// Hide stats table initially (if no board is loaded)
+if (document.getElementById('game').classList.contains('hide')) {
+    stats.style.display = 'none';
+}
+
 const addTeamBtn = document.getElementById('add-team');
 let teams = [];
 
@@ -399,6 +407,9 @@ document.getElementById('reset-board').onclick = function() {
     const resetContainer = document.getElementById('reset-board-container');
     if (resetContainer) resetContainer.style.display = 'none';
     
+    // Hide stats table on reset
+    document.getElementById('stats').style.display = 'none';
+    
     // Remove the title from localStorage so it doesn't reappear after reload
     localStorage.removeItem('jeopardyTitle');
     document.getElementById('title').style.display = 'none';
@@ -429,6 +440,9 @@ showUploadBtn.addEventListener('click', function() {
     // Hide the create form if it's visible
     createFormDiv.classList.add('hide');
     
+    // Show stats table when upload is clicked (form is hidden)
+    document.getElementById('stats').style.display = 'block';
+    
     // Programmatically click the file input to open file dialog
     document.getElementById('jeopardy-upload').click();
 });
@@ -436,6 +450,9 @@ showUploadBtn.addEventListener('click', function() {
 // Show create form option
 showCreateFormBtn.addEventListener('click', function() {
     createFormDiv.classList.remove('hide');
+    
+    // Hide stats table when form is shown
+    document.getElementById('stats').style.display = 'none';
     
     // Initialize form if it's empty
     if (categoriesContainer.children.length === 0) {
