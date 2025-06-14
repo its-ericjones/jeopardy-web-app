@@ -52,10 +52,15 @@ textarea {
     margin: 20px auto;
     max-width: 800px;
     width: 90%;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.08);
 }
 
 .category-section {
-    background: #f5f5f5;
+    background: #fff;
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
@@ -63,16 +68,35 @@ textarea {
     width: 90%;
     margin-left: auto;
     margin-right: auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Add distinct styling to category headers */
+.category-section h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    color: #111;
+    font-size: 1.2em;
+    font-weight: 600;
 }
 
 .question-item {
-    background: #fff;
+    background: #f9f9f9;
     border-radius: 4px;
-    padding: 10px;
-    margin: 10px 0;
+    padding: 15px;
+    margin: 12px 0;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s;
+}
+
+.question-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .question-value {
@@ -80,13 +104,23 @@ textarea {
     display: inline-block;
     width: 50px;
     flex-shrink: 0;
+    font-size: 20px;
+    color: #000;
 }
 
 .question-item input {
     flex: 1;
-    margin: 5px;
-    min-width: calc(50% - 60px);
-    padding: 8px;
+    margin: 5px 8px;
+    min-width: calc(50% - 70px);
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    transition: border-color 0.2s;
+}
+
+.question-item input:focus {
+    border-color: #0066cc;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
 }
 
 .remove-question, .remove-category {
@@ -124,7 +158,7 @@ textarea {
 
 .form-actions {
     text-align: center;
-    margin-top: 20px;
+    margin: 30px 0 10px;
 }
 
 .form-actions button {
@@ -302,7 +336,7 @@ textarea#title {
 #stats {
     width: 90%;
     max-width: 900px;
-    margin: 30px auto;
+    margin: 20px auto;
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
@@ -343,7 +377,9 @@ input.team-name {
 /* Upload Controls */
 #upload-controls {
     text-align: center;
-    margin: 20px 0;
+    margin: 20px auto 30px;
+    max-width: 900px;
+    padding: 20px;
 }
 
 #upload-controls label {
@@ -392,9 +428,20 @@ input.team-name {
 
 .category-section input.category-name {
     width: 90%;
-    margin-bottom: 10px;
-    font-size: 1.1em;
-    padding: 8px;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    padding: 10px 12px;
+    font-weight: 500;
+    background: #f3f3f3;
+    border: 1px solid #d5d5d5;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.category-section input.category-name:focus {
+    border-color: #0066cc;
+    background: #fff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
 }
 
 .question-item {
@@ -446,6 +493,24 @@ input.team-name {
 
 .validation-error::placeholder {
     color: #e74c3c;
+}
+
+#validation-message {
+    color: #e74c3c;
+    background: #ffeceb;
+    border: 1px solid #e74c3c;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin: 15px auto;
+    max-width: 800px;
+    text-align: center;
+    font-weight: 500;
+    display: none;
+}
+
+.has-content {
+    background-color: #f8f9fa;
+    border-color: #28a745 !important;
 }
 
 @media (max-width: 700px) {
