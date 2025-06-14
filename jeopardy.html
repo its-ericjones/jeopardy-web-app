@@ -37,6 +37,22 @@
     <!-- Hidden file input that will be triggered by the Upload button -->
     <input type="file" id="jeopardy-upload" accept=".txt" style="display: none;" />
     
+    <!-- Team setup screen for file uploads -->
+    <div id="file-teams-setup" class="hide">
+      <h3>Add Teams Before Starting</h3>
+      <p>Add teams for your game before loading the board.</p>
+      
+      <div id="file-teams-container">
+        <!-- Teams will be added here -->
+      </div>
+      
+      <button id="file-add-team">Add Team</button>
+      
+      <div class="form-actions">
+        <button id="file-teams-continue">Continue to Game</button>
+      </div>
+    </div>
+    
     <div id="create-form" class="hide">
       <div class="form-section">
         <label for="board-title">Game Title:</label>
