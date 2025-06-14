@@ -279,7 +279,7 @@ if (document.getElementById('game').classList.contains('hide')) {
     setStatsVisibility(false);
 }
 
-const addTeamBtn = document.getElementById('add-team');
+// Add Team button removed from scoring table
 let teams = [];
 
 // Helper function to modify team score
@@ -311,8 +311,7 @@ function addTeam(name = `Team ${teams.length + 1}`) {
     renderStats();
 }
 
-// Add team button handler
-addTeamBtn.onclick = () => addTeam();
+// Add team button handler removed from scoring table
 
 // Handle add/subtract points button clicks in stats table
 statsBody.onclick = function(e) {
