@@ -9,9 +9,10 @@
             handles scoring, and persists state in localStorage.
 ──────────────────────────────────────────────────────────────── */
 
-// Hide stats table immediately when the DOM is ready
+// Hide stats table and clear board title immediately when the DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     setStatsVisibility(false);
+    clearBoardTitle();
 });
 
 // --- Utility Functions ---
@@ -91,6 +92,17 @@ function loadTitle() {
 function clearAllStorage() {
     storage.clear('jeopardyBoard', 'jeopardyUsedCells', 'jeopardyTeams', 'jeopardyTitle');
 }
+
+// Clear the board title both in the UI and storage
+function clearBoardTitle() {
+    const boardTitleInput = document.getElementById('board-title');
+    if (boardTitleInput && boardTitleInput.value) {
+        console.log('Clearing board title value:', boardTitleInput.value);
+        boardTitleInput.value = '';
+    }
+    saveTitle(''); // Also clear from storage
+}
+
 // Try to grab a Title: ... line from the uploaded file
 function parseTitleFromText(text) {
     const match = text.match(/^[\s\t]*title\s*:(.*)$/im);
