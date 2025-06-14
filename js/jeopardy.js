@@ -122,19 +122,15 @@ document.getElementById('jeopardy-upload').addEventListener('change', function(e
     const title = parsedTitle;
     saveTitle(title);
     saveBoardText(fileText);
-    populateJeopardyBoardFromText(fileText);
-    // Set and show the title
-    const titleElem = document.getElementById('title');
-    titleElem.textContent = title;
-    titleElem.style.display = title ? 'block' : 'none';
-    // Clear used cells ONLY on new upload
-    forEachBoardCell((cell) => cell.classList.remove('used'));
-    saveBoardState();
-    // Hide upload controls
-    document.getElementById('upload-controls').style.display = 'none';
     
-    // Show stats table when game board is loaded from file upload
-    setStatsVisibility(true);
+    // Hide the create form if it's visible
+    createFormDiv.classList.add('hide');
+    
+    // Instead of immediately showing the board, show team setup first
+    document.getElementById('file-teams-setup').classList.remove('hide');
+    
+    // Save the file text for later use when continuing to the game
+    window.uploadedFileText = fileText;
     };
     reader.readAsText(file);
 });
@@ -270,6 +266,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     loadTeams();
 });
+
+// Load saved teams or set up an empty array
+let fileTeams = []; // Teams for the file upload flow
 
 // --- Scoring Implementation ---
 const stats = document.getElementById('stats');
@@ -432,8 +431,9 @@ document.getElementById('show-answer').onclick = function() {
 // On reset, clear all storage and reload the page
 document.getElementById('reset-board').onclick = function() {
     document.getElementById('upload-controls').style.display = '';
-    // Hide create form
+    // Hide create form and team setup
     createFormDiv.classList.add('hide');
+    document.getElementById('file-teams-setup').classList.add('hide');
     
     const resetContainer = document.getElementById('reset-board-container');
     if (resetContainer) resetContainer.style.display = 'none';
@@ -451,6 +451,87 @@ document.getElementById('reset-board').onclick = function() {
     
     location.reload();
 };
+
+// File teams functionality
+document.getElementById('file-add-team').addEventListener('click', function() {
+    const teamName = `Team ${fileTeams.length + 1}`;
+    fileTeams.push({ name: teamName, score: 0 });
+    renderFileTeams();
+});
+
+// Render the teams in the file teams container
+function renderFileTeams() {
+    const container = document.getElementById('file-teams-container');
+    container.innerHTML = '';
+    
+    fileTeams.forEach((team, index) => {
+        const teamDiv = document.createElement('div');
+        teamDiv.className = 'team-entry';
+        
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = team.name;
+        nameInput.placeholder = 'Team Name';
+        nameInput.addEventListener('change', function() {
+            fileTeams[index].name = this.value;
+        });
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'Remove';
+        removeBtn.className = 'remove-team';
+        removeBtn.addEventListener('click', function() {
+            fileTeams.splice(index, 1);
+            renderFileTeams();
+        });
+        
+        teamDiv.appendChild(nameInput);
+        teamDiv.appendChild(removeBtn);
+        container.appendChild(teamDiv);
+    });
+}
+
+// Continue to game after setting up teams
+document.getElementById('file-teams-continue').addEventListener('click', function() {
+    // Make sure there's at least one team
+    if (fileTeams.length === 0) {
+        alert('Please add at least one team before continuing.');
+        return;
+    }
+    
+    // Update the global teams variable
+    teams = fileTeams.map(team => ({ ...team }));
+    saveTeams();
+    
+    // Now process the board with the saved file text
+    const fileText = window.uploadedFileText;
+    populateJeopardyBoardFromText(fileText);
+    
+    // Set and show the title
+    const title = loadTitle();
+    const titleElem = document.getElementById('title');
+    titleElem.textContent = title;
+    titleElem.style.display = title ? 'block' : 'none';
+    
+    // Clear used cells for new game
+    forEachBoardCell((cell) => cell.classList.remove('used'));
+    saveBoardState();
+    
+    // Hide upload controls and team setup
+    document.getElementById('upload-controls').style.display = 'none';
+    document.getElementById('file-teams-setup').classList.add('hide');
+    
+    // Show stats table with the new teams
+    renderStats();
+    setStatsVisibility(true);
+});
+
+// Initialize file teams when needed
+function initializeFileTeams() {
+    if (fileTeams.length === 0) {
+        fileTeams.push({ name: 'Team 1', score: 0 });
+        renderFileTeams();
+    }
+}
 
 // --- Board Creation Form Functionality ---
 // Initialize form elements
@@ -471,8 +552,15 @@ showUploadBtn.addEventListener('click', function() {
     // Hide the create form if it's visible
     createFormDiv.classList.add('hide');
     
+    // Hide the team setup until file is selected
+    document.getElementById('file-teams-setup').classList.add('hide');
+    
     // Keep stats table hidden until a game board is actually loaded
     setStatsVisibility(false);
+    
+    // Initialize file teams for the team setup screen
+    fileTeams = [];
+    initializeFileTeams();
     
     // Programmatically click the file input to open file dialog
     document.getElementById('jeopardy-upload').click();
@@ -481,6 +569,9 @@ showUploadBtn.addEventListener('click', function() {
 // Show create form option
 showCreateFormBtn.addEventListener('click', function() {
     createFormDiv.classList.remove('hide');
+    
+    // Hide the file teams setup if it's visible
+    document.getElementById('file-teams-setup').classList.add('hide');
     
     // Hide stats table when form is shown
     setStatsVisibility(false);
