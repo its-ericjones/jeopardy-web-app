@@ -216,7 +216,9 @@ textarea {
 }
 
 /* Utility classes */
-.hide { display:none; }
+.hide {
+    display: none !important;
+}
 .edit {
     border:2px dashed #bbb;
     text-align:center;
@@ -592,36 +594,65 @@ input.team-name {
     background: #444;
 }
 
-@media (max-width: 700px) {
-    #game, #stats { width: 99%; font-size: 0.9em; }
-    #game thead th, #game tbody td { padding: 10px 0; }
-    #prompt-question { font-size: 28px; }
-    #prompt-answer { font-size: 24px; }
-    .prompt-controls button, .prompt-controls select { font-size: 18px; }
-    
-    /* Form responsiveness */
-    .question-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .question-item input {
-        width: calc(100% - 20px);
-        margin: 5px 0;
-    }
-    
-    .form-actions button {
-        display: block;
-        width: 80%;
-        margin: 10px auto;
-    }
-    
-    /* Buttons are already stacked by default */
-    .option-buttons {
-        max-width: 250px;
-    }
-    
-    .option-buttons button {
-        margin: 5px auto;
-    }
+/* File teams setup styling */
+#file-teams-setup {
+    text-align: center;
+    margin: 20px auto;
+    max-width: 500px;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+
+#file-teams-container {
+    margin: 20px 0 10px;
+}
+
+.team-entry {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.team-entry input {
+    margin-right: 10px;
+    width: 200px;
+}
+
+.remove-team {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#file-add-team {
+    background: #000000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-bottom: -40px;
+    cursor: pointer;
+}
+
+#file-teams-continue {
+    background: #000000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 24px;
+    margin-top: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    display: block;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Upload Controls */
