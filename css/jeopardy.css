@@ -135,8 +135,12 @@ textarea {
 
 .option-buttons {
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     margin: 20px 0;
+    width: 100%;
+    max-width: 300px;
 }
 
 .option-buttons button {
@@ -147,7 +151,8 @@ textarea {
     padding: 12px 24px;
     font-size: 1.1em;
     font-weight: 500;
-    margin: 0 10px;
+    margin: 10px 0;
+    width: 100%;
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -190,7 +195,8 @@ textarea {
 #upload-controls h2 {
     text-align: center;
     color: #111;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    font-size: 2em;
 }
 
 /* Required field styling */
@@ -344,7 +350,7 @@ textarea#title {
     padding: 18px;
     border: 1px solid rgba(0,0,0,0.08);
     box-sizing: border-box;
-    display: none; /* Hide by default */
+    display: none; /* Hide by default - only show when game board is visible */
 }
 #stats h3 {
     color: #111;
@@ -379,9 +385,15 @@ input.team-name {
 /* Upload Controls */
 #upload-controls {
     text-align: center;
-    margin: 20px auto 30px;
+    margin: 0 auto;
     max-width: 900px;
     padding: 20px;
+    /* Position in the middle of the page */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
 }
 
 #upload-controls label {
@@ -525,6 +537,61 @@ input.team-name {
     display: none !important;
 }
 
+/* Form team section styling */
+#teams-section {
+    margin: 30px auto;
+}
+
+#teams-section h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    color: #111;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.team-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.team-item input {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.remove-team {
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#form-add-team {
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 500;
+}
+
+#form-add-team:hover {
+    background: #444;
+}
+
 @media (max-width: 700px) {
     #game, #stats { width: 99%; font-size: 0.9em; }
     #game thead th, #game tbody td { padding: 10px 0; }
@@ -549,12 +616,12 @@ input.team-name {
         margin: 10px auto;
     }
     
+    /* Buttons are already stacked by default now */
     .option-buttons {
-        flex-direction: column;
+        max-width: 250px;
     }
     
     .option-buttons button {
         margin: 5px auto;
-        width: 80%;
     }
 }
