@@ -325,7 +325,7 @@ textarea#title {
     color: #111;
     margin-bottom: 32px;
 }
-#prompt button, #stats button, #add-team {
+#prompt button, #stats button {
     background: #111;
     color: #fff;
     border: none;
@@ -338,7 +338,7 @@ textarea#title {
     transition: background 0.2s, color 0.2s;
     box-shadow: none;
 }
-#prompt button:hover, #stats button:hover, #add-team:hover {
+#prompt button:hover, #stats button:hover {
     background: #444;
     color: #fff;
 }
@@ -409,9 +409,7 @@ input.team-name {
     padding: 8px;
 }
 
-#add-team {
-    margin-top: 10px;
-}
+/* #add-team button removed from scoring table */
 
 #show-answer {
     font-size: 28px;
