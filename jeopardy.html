@@ -16,6 +16,16 @@
   <link rel="stylesheet" href="css/jeopardy.css">
 </head>
 <body>
+  <script>
+    // Ensure board title is empty on page load
+    window.addEventListener('DOMContentLoaded', function() {
+      const boardTitleInput = document.getElementById('board-title');
+      if (boardTitleInput && boardTitleInput.value) {
+        console.log('Clearing board title value:', boardTitleInput.value);
+        boardTitleInput.value = '';
+      }
+    });
+  </script>
   <!-- Upload Controls: File input or Create Board -->
   <div id="upload-controls">
     <h2>Create Your Own Jeopardy</h2>
@@ -38,6 +48,17 @@
       </div>
       
       <div id="validation-message"></div>
+      
+      <!-- Teams section for the form -->
+      <div class="form-section" id="teams-section">
+        <h3>Teams</h3>
+        <p>Add teams for your game:</p>
+        <div id="form-teams-container">
+          <!-- Teams will be added here -->
+        </div>
+        <button id="form-add-team">Add Team</button>
+      </div>
+      
       <div class="form-actions">
         <button id="generate-board">Create Game Board</button>
         <button id="generate-download">Create and Download</button>
@@ -70,7 +91,7 @@
   </table>
 
   <!-- Scores/Stats Panel for Teams -->
-  <div id="stats">
+  <div id="stats" style="display: none;">
     <h3>Scores</h3>
     <table>
       <thead>
