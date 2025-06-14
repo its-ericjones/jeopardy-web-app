@@ -8,6 +8,12 @@
   Purpose:  Builds a 5×5 Jeopardy board from a plain-text file, 
             handles scoring, and persists state in localStorage.
 ──────────────────────────────────────────────────────────────── */
+
+// Hide stats table immediately when the DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    setStatsVisibility(false);
+});
+
 // --- Utility Functions ---
 // Generic localStorage helper
 const storage = {
@@ -19,6 +25,14 @@ const storage = {
     remove: (key) => localStorage.removeItem(key),
     clear: (...keys) => keys.forEach(key => localStorage.removeItem(key))
 };
+
+// Utility function to manage stats table visibility
+function setStatsVisibility(visible) {
+    const statsElement = document.getElementById('stats');
+    if (statsElement) {
+        statsElement.style.display = visible ? 'block' : 'none';
+    }
+}
 
 // Board iteration helper
 function forEachBoardCell(callback) {
@@ -106,6 +120,9 @@ document.getElementById('jeopardy-upload').addEventListener('change', function(e
     saveBoardState();
     // Hide upload controls
     document.getElementById('upload-controls').style.display = 'none';
+    
+    // Show stats table when game board is loaded from file upload
+    setStatsVisibility(true);
     };
     reader.readAsText(file);
 });
@@ -173,7 +190,7 @@ function populateJeopardyBoardFromText(text) {
     addCellClickHandlers();
     document.getElementById('upload-controls').style.display = 'none';
     // Show the stats table when board is displayed
-    document.getElementById('stats').style.display = 'block';
+    setStatsVisibility(true);
     // Always show reset button container after board is loaded
     const resetContainer = document.getElementById('reset-board-container');
     if (resetContainer) resetContainer.style.display = 'block';
@@ -205,6 +222,9 @@ function generateGameBoard() {
 
 // On page load, try to restore from localStorage if possible
 document.addEventListener('DOMContentLoaded', function() {
+    // Ensure stats is hidden by default (only show when board is loaded)
+    setStatsVisibility(false);
+    
     const saved = loadBoardText();
     // Restore title
     let savedTitle = loadTitle();
@@ -228,6 +248,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (resetContainer) resetContainer.style.display = 'block';
     // Hide initial controls since we're loading from storage
     document.getElementById('upload-controls').style.display = 'none';
+    // Show stats table when a saved board is loaded
+    setStatsVisibility(true);
     } else {
     // Generate empty board structure even if no saved data
     generateGameBoard();
@@ -243,7 +265,7 @@ const statsBody = document.getElementById('stats-body');
 
 // Hide stats table initially (if no board is loaded)
 if (document.getElementById('game').classList.contains('hide')) {
-    stats.style.display = 'none';
+    setStatsVisibility(false);
 }
 
 const addTeamBtn = document.getElementById('add-team');
@@ -307,9 +329,6 @@ let lastCellValue = 0;
 function getCurrentCellValue() {
     return lastCellValue;
 }
-
-// Show stats bar
-stats.style.display = 'block';
 
 // Add click handlers to all board cells
 function addCellClickHandlers() {
@@ -408,7 +427,7 @@ document.getElementById('reset-board').onclick = function() {
     if (resetContainer) resetContainer.style.display = 'none';
     
     // Hide stats table on reset
-    document.getElementById('stats').style.display = 'none';
+    setStatsVisibility(false);
     
     // Remove the title from localStorage so it doesn't reappear after reload
     localStorage.removeItem('jeopardyTitle');
@@ -440,8 +459,8 @@ showUploadBtn.addEventListener('click', function() {
     // Hide the create form if it's visible
     createFormDiv.classList.add('hide');
     
-    // Show stats table when upload is clicked (form is hidden)
-    document.getElementById('stats').style.display = 'block';
+    // Keep stats table hidden until a game board is actually loaded
+    setStatsVisibility(false);
     
     // Programmatically click the file input to open file dialog
     document.getElementById('jeopardy-upload').click();
@@ -452,7 +471,10 @@ showCreateFormBtn.addEventListener('click', function() {
     createFormDiv.classList.remove('hide');
     
     // Hide stats table when form is shown
-    document.getElementById('stats').style.display = 'none';
+    setStatsVisibility(false);
+    
+    // Always reset the board title to be empty when form is shown
+    document.getElementById('board-title').value = '';
     
     // Initialize form if it's empty
     if (categoriesContainer.children.length === 0) {
@@ -460,6 +482,13 @@ showCreateFormBtn.addEventListener('click', function() {
             addCategory();
         }
     }
+    
+    // Initialize form teams if empty
+    if (formTeams.length === 0) {
+        // Add a default team to get started
+        addFormTeam();
+    }
+    renderFormTeams();
     
     // Add validation listeners and process initial field values
     addValidationListeners();
@@ -648,6 +677,18 @@ function createBoardFromForm(shouldDownload) {
     // Set and show title
     const titleElem = document.getElementById('title');
     titleElem.textContent = boardTitle;
+    
+    // Transfer teams from form to game
+    if (formTeams.length > 0) {
+        teams = [...formTeams]; // Copy teams from form
+        formTeams = []; // Clear form teams
+        renderStats(); // Update the stats display
+    } else {
+        // If no teams were added in the form, add a default team
+        if (teams.length === 0) {
+            addTeam();
+        }
+    }
     titleElem.style.display = 'block';
     
     // Return the board text and title for potential download
@@ -708,5 +749,67 @@ function addValidationListeners() {
                 this.classList.remove('has-content');
             }
         });
+    });
+}
+
+// --- Team Management in Create Form ---
+const formTeamsContainer = document.getElementById('form-teams-container');
+const formAddTeamBtn = document.getElementById('form-add-team');
+
+// Initialize form teams array
+let formTeams = [];
+
+// Add a new team to the form
+function addFormTeam(name = `Team ${formTeams.length + 1}`) {
+    formTeams.push({ name, score: 0 });
+    renderFormTeams();
+}
+
+// Render teams in the form
+function renderFormTeams() {
+    if (!formTeamsContainer) return;
+    
+    formTeamsContainer.innerHTML = '';
+    
+    if (formTeams.length === 0) {
+        const noTeamsMsg = document.createElement('p');
+        noTeamsMsg.textContent = 'No teams added yet. Click "Add Team" to create teams.';
+        noTeamsMsg.style.fontStyle = 'italic';
+        noTeamsMsg.style.color = '#666';
+        formTeamsContainer.appendChild(noTeamsMsg);
+        return;
+    }
+    
+    formTeams.forEach((team, idx) => {
+        const teamRow = document.createElement('div');
+        teamRow.className = 'team-item';
+        teamRow.innerHTML = `
+            <input type="text" value="${team.name}" class="form-team-name" data-idx="${idx}" placeholder="Team name">
+            <button class="remove-team" data-idx="${idx}">Remove</button>
+        `;
+        formTeamsContainer.appendChild(teamRow);
+    });
+}
+
+// Add team button handler for form
+if (formAddTeamBtn) {
+    formAddTeamBtn.onclick = () => addFormTeam();
+}
+
+// Handle team removal and name changes in form
+if (formTeamsContainer) {
+    formTeamsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-team')) {
+            const idx = +e.target.getAttribute('data-idx');
+            formTeams.splice(idx, 1);
+            renderFormTeams();
+        }
+    });
+    
+    formTeamsContainer.addEventListener('input', function(e) {
+        if (e.target.classList.contains('form-team-name')) {
+            const idx = +e.target.getAttribute('data-idx');
+            formTeams[idx].name = e.target.value;
+        }
     });
 }
