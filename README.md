@@ -3,11 +3,11 @@
 A web-based Jeopardy game for group presentations and interactive gameplay. Build custom game boards through an intuitive form interface or upload existing text files for quick setup.
 
 ## Screenshots
-![Jeopardy Game Board](screenshots/game-board-early2000s.png)
+![Jeopardy Game Board](screenshots/game-board-loaded.png)
 
 *Main game board with categories and point values*
 
-![Question Modal](screenshots/question-modal-early2000s.png)
+![Question Modal](screenshots/game-board-question-modal.png)
 
 *Question display with team selection and scoring controls*
 
@@ -21,7 +21,7 @@ A web-based Jeopardy game for group presentations and interactive gameplay. Buil
 
 ### Sample Content
 
-- **`jeopardy.txt`** - Example game file demonstrating the text format for creating custom Jeopardy boards
+- **`2000s-pop-culture.txt`** - Example game file demonstrating the text format for creating custom Jeopardy boards
 
 ## Getting Started
 
@@ -33,22 +33,25 @@ A web-based Jeopardy game for group presentations and interactive gameplay. Buil
    
    **Option A: Create a new board**
    - Click "Create Board Manually" on the home screen
-   - Fill in the form with your game title, five categories, and five questions/answers per category
+   - Fill in the form with your game title, five categories, five questions/answers per category and teams
    - When complete, click either:
      - "Create Game Board" to generate your game, or
      - "Create and Download" to also save a text file for future use
 
-    ![Game Board Creation](screenshots/board-creation-early2000s.png)
+    ![Game Board Creation](screenshots/game-board-manual-creation.png)
+    
+    ![Game Board Creation](screenshots/game-board-manual-creation-confirmation.png)
 
    **Option B: Use an existing board**
    - Click "Upload Text File" and select your previously saved game file
+   - Add teams
    - The board will be automatically created and displayed
 
-3. **Add teams**: Use the "Add Team" button to create participating teams
+   ![Game Board Creation](screenshots/game-board-upload.png)
 
-4. **Play the game**: Click on values to reveal answers, show questions, and award points
+3. **Play the game**: Click on values to reveal answers, show questions, and award points
 
-    ![Board Gameplay](screenshots/board-gameplay-early2000s.png)
+    ![Board Gameplay](screenshots/game-board-gameplay.png)
 
 ## Exported Text File Breakdown
 
