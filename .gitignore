@@ -38,7 +38,7 @@ yarn.lock
 .env.development.local
 .env.test.local
 .env.production.local
-test-utils/
+test/
 
 # Temporary files
 tmp/
