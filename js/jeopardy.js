@@ -9,11 +9,7 @@
             handles scoring, and persists state in localStorage.
 ──────────────────────────────────────────────────────────────── */
 
-// Hide stats table and clear board title immediately when the DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    setStatsVisibility(false);
-    clearBoardTitle();
-});
+// Note: DOM initialization is handled by the initializeApp function below
 
 // --- Utility Functions ---
 // Generic localStorage helper
@@ -27,12 +23,17 @@ const storage = {
     clear: (...keys) => keys.forEach(key => localStorage.removeItem(key))
 };
 
-// Utility function to manage stats table visibility
-function setStatsVisibility(visible) {
-    const statsElement = document.getElementById('stats');
-    if (statsElement) {
-        statsElement.style.display = visible ? 'block' : 'none';
+// Utility function to manage element visibility
+function setElementVisibility(elementId, visible) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = visible ? 'block' : 'none';
     }
+}
+
+// Utility function to manage stats table visibility using the generic function
+function setStatsVisibility(visible) {
+    setElementVisibility('stats', visible);
 }
 
 // Board iteration helper
@@ -46,51 +47,56 @@ function forEachBoardCell(callback) {
 }
 
 // --- Persistent Storage Helpers ---
-function saveBoardState() {
-    const used = [];
-    forEachBoardCell((cell) => {
-    if (cell.classList.contains('used')) {
-        used.push(cell.id);
+// Consolidated storage functions using a consistent pattern
+const jeopardyStorage = {
+    boardState: {
+        save: () => {
+            const used = [];
+            forEachBoardCell((cell) => {
+                if (cell.classList.contains('used')) {
+                    used.push(cell.id);
+                }
+            });
+            storage.save('jeopardyUsedCells', used);
+        },
+        load: () => {
+            const used = storage.load('jeopardyUsedCells', []);
+            used.forEach(id => {
+                const cell = document.getElementById(id);
+                if (cell) cell.classList.add('used');
+            });
+        }
+    },
+    teams: {
+        save: () => storage.save('jeopardyTeams', teams),
+        load: () => {
+            teams = storage.load('jeopardyTeams', []);
+            renderStats();
+        }
+    },
+    board: {
+        save: (text) => storage.save('jeopardyBoard', text),
+        load: () => storage.load('jeopardyBoard')
+    },
+    title: {
+        save: (title) => storage.save('jeopardyTitle', title),
+        load: () => storage.load('jeopardyTitle', '')
     }
-    });
-    storage.save('jeopardyUsedCells', used);
-}
+};
 
-function loadBoardState() {
-    const used = storage.load('jeopardyUsedCells', []);
-    used.forEach(id => {
-    const cell = document.getElementById(id);
-    if (cell) cell.classList.add('used');
-    });
-}
-
-function saveTeams() {
-    storage.save('jeopardyTeams', teams);
-}
-
-function loadTeams() {
-    teams = storage.load('jeopardyTeams', []);
-    renderStats();
-}
-
-function saveBoardText(text) {
-    storage.save('jeopardyBoard', text);
-}
-
-function loadBoardText() {
-    return storage.load('jeopardyBoard');
-}
-
-function saveTitle(title) {
-    storage.save('jeopardyTitle', title);
-}
-
-function loadTitle() {
-    return storage.load('jeopardyTitle', '');
-}
+// Maintain backward compatibility with existing function calls
+function saveBoardState() { jeopardyStorage.boardState.save(); }
+function loadBoardState() { jeopardyStorage.boardState.load(); }
+function saveTeams() { jeopardyStorage.teams.save(); }
+function loadTeams() { jeopardyStorage.teams.load(); }
+function saveBoardText(text) { jeopardyStorage.board.save(text); }
+function loadBoardText() { return jeopardyStorage.board.load(); }
+function saveTitle(title) { jeopardyStorage.title.save(title); }
+function loadTitle() { return jeopardyStorage.title.load(); }
 
 function clearAllStorage() {
-    storage.clear('jeopardyBoard', 'jeopardyUsedCells', 'jeopardyTeams', 'jeopardyTitle');
+    const keys = ['jeopardyBoard', 'jeopardyUsedCells', 'jeopardyTeams', 'jeopardyTitle'];
+    storage.clear(...keys);
 }
 
 // Clear the board title both in the UI and storage
@@ -228,51 +234,66 @@ function generateGameBoard() {
     }
 }
 
-// On page load, try to restore from localStorage if possible
-document.addEventListener('DOMContentLoaded', function() {
+// Consolidated initialization function
+function initializeApp() {
+    // Initialize element references first to avoid reference errors
+    initFormElements();
+    initScoring();
+    initFormTeamElements();
+    
     // Ensure stats is hidden by default (only show when board is loaded)
     setStatsVisibility(false);
+    clearBoardTitle();
     
     const saved = loadBoardText();
     // Restore title
     let savedTitle = loadTitle();
     // If no savedTitle, try to parse from saved board text
     if (!savedTitle && saved) {
-    savedTitle = parseTitleFromText(saved);
-    if (savedTitle) saveTitle(savedTitle);
+        savedTitle = parseTitleFromText(saved);
+        if (savedTitle) saveTitle(savedTitle);
     }
+    
     const titleElem = document.getElementById('title');
     if (savedTitle) {
-    titleElem.textContent = savedTitle;
-    titleElem.style.display = 'block';
+        titleElem.textContent = savedTitle;
+        setElementVisibility('title', true);
     } else {
-    titleElem.style.display = 'none';
+        setElementVisibility('title', false);
     }
+    
     if (saved) {
-    populateJeopardyBoardFromText(saved);
-    loadBoardState();
-    // Always show reset button container after board is loaded
-    const resetContainer = document.getElementById('reset-board-container');
-    if (resetContainer) resetContainer.style.display = 'block';
-    // Hide initial controls since we're loading from storage
-    document.getElementById('upload-controls').style.display = 'none';
-    // Show stats table when a saved board is loaded
-    setStatsVisibility(true);
+        populateJeopardyBoardFromText(saved);
+        loadBoardState();
+        // Always show reset button container after board is loaded
+        setElementVisibility('reset-board-container', true);
+        // Hide initial controls since we're loading from storage
+        document.getElementById('upload-controls').style.display = 'none';
+        // Show stats table when a saved board is loaded
+        setStatsVisibility(true);
     } else {
-    // Generate empty board structure even if no saved data
-    generateGameBoard();
-    // Initially only show the option buttons, not the create form
-    createFormDiv.classList.add('hide');
+        // Generate empty board structure even if no saved data
+        generateGameBoard();
+        // Initially only show the option buttons, not the create form
+        createFormDiv.classList.add('hide');
     }
     loadTeams();
-});
+}
+
+// Single DOMContentLoaded event handler
+document.addEventListener('DOMContentLoaded', initializeApp);
 
 // Load saved teams or set up an empty array
 let fileTeams = []; // Teams for the file upload flow
 
 // --- Scoring Implementation ---
-const stats = document.getElementById('stats');
-const statsBody = document.getElementById('stats-body');
+let stats, statsBody;
+
+// These will be initialized in initializeApp function
+function initScoring() {
+    stats = document.getElementById('stats');
+    statsBody = document.getElementById('stats-body');
+}
 
 // Hide stats table initially (if no board is loaded)
 if (document.getElementById('game').classList.contains('hide')) {
@@ -290,19 +311,13 @@ function modifyTeamScore(teamIndex, points) {
 
 // Render the team stats table
 function renderStats() {
-    statsBody.innerHTML = '';
-    teams.forEach((team, idx) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td><input type="text" value="${team.name}" class="team-name" data-idx="${idx}" style="width:100px;text-align:center;"></td>
-        <td><span id="score-${idx}">${team.score}</span></td>
-        <td><button class="add-points" data-idx="${idx}">+</button></td>
-        <td><button class="subtract-points" data-idx="${idx}">-</button></td>
-    `;
-    statsBody.appendChild(row);
+    renderTeamList(teams, 'stats-body', {
+        type: 'stats',
+        afterRender: () => {
+            updatePromptTeamSelect();
+            saveTeams();
+        }
     });
-    updatePromptTeamSelect();
-    saveTeams();
 }
 
 // Add a new team (default name if not provided)
@@ -363,22 +378,7 @@ function updatePromptTeamSelect() {
     });
 }
 
-// Update team selector whenever teams change
-renderStats = function() {
-    statsBody.innerHTML = '';
-    teams.forEach((team, idx) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td><input type="text" value="${team.name}" class="team-name" data-idx="${idx}" style="width:100px;text-align:center;"></td>
-        <td><span id="score-${idx}">${team.score}</span></td>
-        <td><button class="add-points" data-idx="${idx}">+</button></td>
-        <td><button class="subtract-points" data-idx="${idx}">-</button></td>
-    `;
-    statsBody.appendChild(row);
-    });
-    updatePromptTeamSelect();
-    saveTeams();
-};
+// Note: renderStats function is already defined above and doesn't need to be redefined
 
 // Helper to handle scoring from prompt modal
 function handlePromptScoring(isAdd) {
@@ -458,35 +458,102 @@ document.getElementById('file-add-team').addEventListener('click', function() {
     renderFileTeams();
 });
 
-// Render the teams in the file teams container
-function renderFileTeams() {
-    const container = document.getElementById('file-teams-container');
+// Generic team renderer that can handle different team arrays and UI elements
+function renderTeamList(teamArray, containerId, options = {}) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
     container.innerHTML = '';
     
-    fileTeams.forEach((team, index) => {
-        const teamDiv = document.createElement('div');
-        teamDiv.className = 'team-entry';
-        
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.value = team.name;
-        nameInput.placeholder = 'Team Name';
-        nameInput.addEventListener('change', function() {
-            fileTeams[index].name = this.value;
-        });
-        
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = 'Remove';
-        removeBtn.className = 'remove-team';
-        removeBtn.addEventListener('click', function() {
-            fileTeams.splice(index, 1);
-            renderFileTeams();
-        });
-        
-        teamDiv.appendChild(nameInput);
-        teamDiv.appendChild(removeBtn);
-        container.appendChild(teamDiv);
+    // Show empty message if no teams
+    if (teamArray.length === 0 && options.emptyMessage) {
+        const noTeamsMsg = document.createElement('p');
+        noTeamsMsg.textContent = options.emptyMessage;
+        noTeamsMsg.style.fontStyle = 'italic';
+        noTeamsMsg.style.color = '#666';
+        container.appendChild(noTeamsMsg);
+        return;
+    }
+    
+    // Create elements for each team
+    teamArray.forEach((team, idx) => {
+        // For stats table
+        if (options.type === 'stats') {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" value="${team.name}" class="team-name" data-idx="${idx}" style="width:100px;text-align:center;"></td>
+                <td><span id="score-${idx}">${team.score}</span></td>
+                <td><button class="add-points" data-idx="${idx}">+</button></td>
+                <td><button class="subtract-points" data-idx="${idx}">-</button></td>
+            `;
+            container.appendChild(row);
+        } 
+        // For form teams
+        else if (options.type === 'form') {
+            const teamRow = document.createElement('div');
+            teamRow.className = 'team-item';
+            teamRow.innerHTML = `
+                <input type="text" value="${team.name}" class="form-team-name" data-idx="${idx}" placeholder="Team name">
+                <button class="remove-team" data-idx="${idx}">Remove</button>
+            `;
+            container.appendChild(teamRow);
+        }
+        // For file teams setup
+        else if (options.type === 'file') {
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'team-entry';
+            
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.value = team.name;
+            nameInput.placeholder = 'Team Name';
+            nameInput.className = 'file-team-name';
+            nameInput.dataset.idx = idx;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Remove';
+            removeBtn.className = 'remove-team';
+            removeBtn.dataset.idx = idx;
+            
+            teamDiv.appendChild(nameInput);
+            teamDiv.appendChild(removeBtn);
+            container.appendChild(teamDiv);
+        }
     });
+    
+    // Perform additional actions after rendering
+    if (options.afterRender) {
+        options.afterRender();
+    }
+}
+
+// Render the teams in the file teams container
+function renderFileTeams() {
+    renderTeamList(fileTeams, 'file-teams-container', { 
+        type: 'file',
+        emptyMessage: 'No teams added yet. Click "Add Team" to create teams.'
+    });
+    
+    // Add event listeners after rendering
+    const container = document.getElementById('file-teams-container');
+    if (container) {
+        // Add change event listeners for name inputs
+        container.querySelectorAll('.file-team-name').forEach(input => {
+            input.addEventListener('change', function() {
+                const idx = +this.dataset.idx;
+                fileTeams[idx].name = this.value;
+            });
+        });
+        
+        // Add click event listeners for remove buttons
+        container.querySelectorAll('.remove-team').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const idx = +this.dataset.idx;
+                fileTeams.splice(idx, 1);
+                renderFileTeams();
+            });
+        });
+    }
 }
 
 // Continue to game after setting up teams
@@ -536,10 +603,17 @@ function initializeFileTeams() {
 // Initialize form elements
 const showUploadBtn = document.getElementById('show-upload');
 const showCreateFormBtn = document.getElementById('show-create-form');
-const createFormDiv = document.getElementById('create-form');
-const generateBoardBtn = document.getElementById('generate-board');
-const generateDownloadBtn = document.getElementById('generate-download');
-const categoriesContainer = document.getElementById('categories-container');
+let createFormDiv, generateBoardBtn, generateDownloadBtn, categoriesContainer;
+
+// Initialize form elements
+function initFormElements() {
+    createFormDiv = document.getElementById('create-form');
+    generateBoardBtn = document.getElementById('generate-board');
+    generateDownloadBtn = document.getElementById('generate-download');
+    categoriesContainer = document.getElementById('categories-container');
+}
+
+// Call this initialization function
 
 // Default values for new categories and questions
 const DEFAULT_CATEGORY = "New Category";
@@ -855,11 +929,20 @@ function addValidationListeners() {
 }
 
 // --- Team Management in Create Form ---
-const formTeamsContainer = document.getElementById('form-teams-container');
-const formAddTeamBtn = document.getElementById('form-add-team');
+let formTeamsContainer, formAddTeamBtn;
+
+function initFormTeamElements() {
+    formTeamsContainer = document.getElementById('form-teams-container');
+    formAddTeamBtn = document.getElementById('form-add-team');
+}
 
 // Initialize form teams array
 let formTeams = [];
+
+// Update the formTeams initialization in the form teams init function
+function initFormTeams() {
+    formTeams = [];
+}
 
 // Add a new team to the form
 function addFormTeam(name = `Team ${formTeams.length + 1}`) {
@@ -867,29 +950,11 @@ function addFormTeam(name = `Team ${formTeams.length + 1}`) {
     renderFormTeams();
 }
 
-// Render teams in the form
+// Render teams in the form using the consolidated renderer
 function renderFormTeams() {
-    if (!formTeamsContainer) return;
-    
-    formTeamsContainer.innerHTML = '';
-    
-    if (formTeams.length === 0) {
-        const noTeamsMsg = document.createElement('p');
-        noTeamsMsg.textContent = 'No teams added yet. Click "Add Team" to create teams.';
-        noTeamsMsg.style.fontStyle = 'italic';
-        noTeamsMsg.style.color = '#666';
-        formTeamsContainer.appendChild(noTeamsMsg);
-        return;
-    }
-    
-    formTeams.forEach((team, idx) => {
-        const teamRow = document.createElement('div');
-        teamRow.className = 'team-item';
-        teamRow.innerHTML = `
-            <input type="text" value="${team.name}" class="form-team-name" data-idx="${idx}" placeholder="Team name">
-            <button class="remove-team" data-idx="${idx}">Remove</button>
-        `;
-        formTeamsContainer.appendChild(teamRow);
+    renderTeamList(formTeams, 'form-teams-container', {
+        type: 'form',
+        emptyMessage: 'No teams added yet. Click "Add Team" to create teams.'
     });
 }
 
