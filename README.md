@@ -1,6 +1,6 @@
 # Jeopardy Game
 
-A web-based Jeopardy game for group presentations and interactive gameplay. Build custom game boards through an intuitive form interface or upload existing text files for quick setup.
+A web-based Jeopardy game for group presentations and interactive gameplay. Build custom game boards through a form  or upload existing text files for quick setup.
 
 ## Screenshots
 ![Jeopardy Game Board](screenshots/game-board-loaded.png)
@@ -9,14 +9,14 @@ A web-based Jeopardy game for group presentations and interactive gameplay. Buil
 
 ![Question Modal](screenshots/game-board-question-modal.png)
 
-*Question display with team selection and scoring controls*
+*Question and answer screen with team selection and scoring controls*
 
 ## Project Structure
 
 ### Core Files
 
 - **`jeopardy.html`** - Main HTML structure with game board layout, scoring table, and modal elements
-- **`css/jeopardy.css`** - Stylesheet with responsive design and large fonts optimized for group presentations
+- **`css/jeopardy.css`** - Stylesheet with responsive design for desktop and mobile devices
 - **`js/jeopardy.js`** - Game logic handling file uploads, board generation, team management, and persistent storage
 
 ### Sample Content
@@ -82,7 +82,6 @@ Category: Blockbuster Movies
 - **Flexible Creation**: Build boards through forms or upload existing files
 - **Optional Download**: Save boards as text files for future games
 - **Persistent Storage**: Game state saves automatically between browser sessions
-- **Interactive Reveal**: Click values → show question → show answer → award points
 - **Form Validation**: Real-time feedback ensures all required fields are completed
 - **Responsive Design**: Works on desktop and mobile devices
 
