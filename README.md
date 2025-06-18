@@ -92,8 +92,10 @@ The game automatically saves:
 - Team names and scores  
 - Used/completed questions
 - Game title
+- Form drafts for partially created game boards
 
 Data persists between browser sessions until manually reset by the `Reset Board` button or by clearing browser cache.
+
 
 ## Technical Notes
 
