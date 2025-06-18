@@ -21,7 +21,7 @@ A web-based Jeopardy game for group presentations and interactive gameplay. Buil
 
 ### Sample Content
 
-- **`2000s-pop-culture.txt`** - Example game file demonstrating the text format for creating custom Jeopardy boards
+- **`2000s-pop-culture.txt`** - Example game file that can be uploaded to create a previously generated board
 
 ## Getting Started
 
