@@ -46,8 +46,21 @@
     
     <div id="create-form" class="hide">
       <div class="form-section">
-        <label for="board-title">Game Title:</label>
-        <input type="text" id="board-title" placeholder="Enter a title for your game" class="required-field" required>
+        <!-- Draft management UI moved above the title and centered -->
+        <div id="draft-management">
+          <span id="last-saved-display">No draft saved</span>
+          <div class="draft-actions">
+            <div class="draft-buttons">
+              <button id="save-draft-btn" class="secondary-btn" style="margin-right: 10px;">Save Draft</button>
+              <button id="discard-draft-btn" class="secondary-btn" style="display:none;">Discard Draft</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="title-section">
+          <label for="board-title">Game Title:</label>
+          <input type="text" id="board-title" placeholder="Enter a title for your game" class="required-field" required>
+        </div>
       </div>
       
       <div id="categories-container">
