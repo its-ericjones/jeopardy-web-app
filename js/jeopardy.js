@@ -13,6 +13,34 @@
 document.addEventListener('DOMContentLoaded', function() {
     setStatsVisibility(false);
     clearBoardTitle();
+    
+    // Check if there's a draft but no active game loaded
+    const savedDraft = storage.load('jeopardyFormDraft');
+    const savedBoard = loadBoardText();
+    
+    if (savedDraft && !savedBoard) {
+        // Suggest opening the form to continue working on the draft
+        const notificationDiv = document.createElement('div');
+        notificationDiv.id = 'draft-notification';
+        notificationDiv.className = 'draft-notification';
+        notificationDiv.innerHTML = `
+            <div>You have an unsaved game board draft. 
+            <button id="continue-draft-btn">Continue Editing</button>
+            <button id="close-notification-btn" class="close-btn">&times;</button></div>
+        `;
+        document.body.insertBefore(notificationDiv, document.body.firstChild);
+        
+        // Set up click handler for the continue button
+        document.getElementById('continue-draft-btn').addEventListener('click', function() {
+            showCreateFormBtn.click();
+            notificationDiv.remove();
+        });
+        
+        // Set up click handler for the close button
+        document.getElementById('close-notification-btn').addEventListener('click', function() {
+            notificationDiv.remove();
+        });
+    }
 });
 
 // --- Utility Functions ---
@@ -561,6 +589,12 @@ showUploadBtn.addEventListener('click', function() {
     fileTeams = [];
     initializeFileTeams();
     
+    // Remove draft notification if present
+    const draftNotification = document.getElementById('draft-notification');
+    if (draftNotification) {
+        draftNotification.remove();
+    }
+    
     // Programmatically click the file input to open file dialog
     document.getElementById('jeopardy-upload').click();
 });
@@ -575,32 +609,52 @@ showCreateFormBtn.addEventListener('click', function() {
     // Hide stats table when form is shown
     setStatsVisibility(false);
     
-    // Always reset the board title to be empty when form is shown
-    document.getElementById('board-title').value = '';
-    
-    // Initialize form if it's empty
-    if (categoriesContainer.children.length === 0) {
-        for (let i = 0; i < 5; i++) {
-            addCategory();
-        }
+    // Remove the draft notification banner if it exists
+    const draftNotification = document.getElementById('draft-notification');
+    if (draftNotification) {
+        draftNotification.remove();
     }
     
-    // Initialize form teams if empty
-    if (formTeams.length === 0) {
-        // Add a default team to get started
-        addFormTeam();
-    }
-    renderFormTeams();
-    
-    // Add validation listeners and process initial field values
-    addValidationListeners();
-    
-    // Process any fields that already have content (like default category names)
-    document.querySelectorAll('.required-field').forEach(field => {
-        if (field.value.trim() !== '') {
-            field.classList.add('has-content');
+    try {
+        // Check if there's a saved draft
+        const savedDraft = storage.load('jeopardyFormDraft');
+        
+        if (savedDraft) {
+            // Ask user if they want to restore their draft
+            const restoreDraft = confirm('We found a saved draft of your game board. Would you like to restore it?');
+            
+            if (restoreDraft) {
+                // Initialize a clean form first to ensure proper structure
+                reinitializeForm();
+                
+                // Then try to load the draft data
+                if (!loadFormDraft()) {
+                    // If loading failed, we already have a clean form from reinitializeForm
+                    console.error("Failed to load draft, using clean form instead");
+                    alert("There was an issue loading your draft. Starting with a fresh form.");
+                    discardFormDraft(); // Clear the problematic draft
+                }
+            } else {
+                // User doesn't want to restore, proceed with a new form
+                // Clear the draft from storage
+                discardFormDraft();
+                
+                // Create a fresh form
+                reinitializeForm();
+            }
+        } else {
+            // No draft found, set up a new form
+            reinitializeForm();
         }
-    });
+    } catch (error) {
+        // If anything goes wrong, create a fresh form
+        console.error("Error handling create form:", error);
+        reinitializeForm();
+    }
+    
+    // Set up draft management functionality regardless of path taken
+    setupDraftEventListeners();
+    updateLastSavedDisplay();
     
     // Clear any previous validation errors
     document.getElementById('validation-message').style.display = 'none';
@@ -624,10 +678,21 @@ function addCategory() {
     // Create category header with name input
     const categoryHeader = document.createElement('div');
     categoryHeader.className = 'category-header';
-    categoryHeader.innerHTML = `
-        <label for="category-${categoryIndex}">Category ${categoryIndex + 1}:</label>
-        <input type="text" id="category-${categoryIndex}" placeholder="Enter category name" class="category-name required-field" required>
-    `;
+    
+    // Create label element safely
+    const label = document.createElement('label');
+    label.setAttribute('for', `category-${categoryIndex}`);
+    label.textContent = `Category ${categoryIndex + 1}:`;
+    categoryHeader.appendChild(label);
+    
+    // Create input element safely
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = `category-${categoryIndex}`;
+    input.placeholder = 'Enter category name';
+    input.className = 'category-name required-field';
+    input.required = true;
+    categoryHeader.appendChild(input);
     
     // Create questions container
     const questionsContainer = document.createElement('div');
@@ -637,11 +702,31 @@ function addCategory() {
     DEFAULT_VALUES.forEach((value, qIndex) => {
         const questionItem = document.createElement('div');
         questionItem.className = 'question-item';
-        questionItem.innerHTML = `
-            <div class="question-value">${value}</div>
-            <input type="text" class="question-answer required-field" placeholder="Answer (shown to players)" data-value="${value}" required>
-            <input type="text" class="question-question required-field" placeholder="Question (correct response)" data-value="${value}" required>
-        `;
+        
+        // Create value display
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'question-value';
+        valueDiv.textContent = value;
+        questionItem.appendChild(valueDiv);
+        
+        // Create answer input
+        const answerInput = document.createElement('input');
+        answerInput.type = 'text';
+        answerInput.className = 'question-answer required-field';
+        answerInput.placeholder = 'Answer (shown to players)';
+        answerInput.setAttribute('data-value', value);
+        answerInput.required = true;
+        questionItem.appendChild(answerInput);
+        
+        // Create question input
+        const questionInput = document.createElement('input');
+        questionInput.type = 'text';
+        questionInput.className = 'question-question required-field';
+        questionInput.placeholder = 'Question (correct response)';
+        questionInput.setAttribute('data-value', value);
+        questionInput.required = true;
+        questionItem.appendChild(questionInput);
+        
         questionsContainer.appendChild(questionItem);
     });
     
@@ -649,6 +734,18 @@ function addCategory() {
     categorySection.appendChild(categoryHeader);
     categorySection.appendChild(questionsContainer);
     categoriesContainer.appendChild(categorySection);
+    
+    // Add validation listeners to the new fields
+    categorySection.querySelectorAll('.required-field').forEach(field => {
+        // Initialize validation styling
+        if (field.value.trim() !== '') {
+            field.classList.add('has-content');
+            field.classList.remove('validation-error');
+        } else {
+            field.classList.remove('has-content');
+            // Don't add validation-error on initial creation
+        }
+    });
 }
 
 // No longer using addCategoryBtn
@@ -781,6 +878,9 @@ function createBoardFromForm(shouldDownload) {
     saveTitle(boardTitle);
     saveBoardText(boardText);
     
+    // Clear the form draft since we've successfully created a board
+    discardFormDraft();
+    
     // Create game board
     populateJeopardyBoardFromText(boardText);
     
@@ -888,8 +988,8 @@ function addValidationListeners() {
             field.classList.remove('validation-error');
         } else {
             field.classList.remove('has-content');
-            // Mark empty fields as invalid from the beginning
-            field.classList.add('validation-error');
+            // We'll only add validation-error when field is modified and becomes empty
+            // This prevents showing error styling on initial load
         }
         
         // Add event listener for input changes
@@ -987,5 +1087,386 @@ if (formTeamsContainer) {
             const idx = +e.target.getAttribute('data-idx');
             formTeams[idx].name = e.target.value;
         }
+    });
+}
+
+// --- Form Draft Functionality ---
+// Save the current state of the form to localStorage
+function saveFormDraft() {
+    try {
+        const boardTitle = document.getElementById('board-title');
+        const formData = {
+            title: boardTitle ? boardTitle.value : '',
+            categories: [],
+            teams: formTeams || [],
+            lastModified: new Date().toISOString()
+        };
+        
+        // Verify categories container exists
+        if (!categoriesContainer) {
+            console.error('Categories container not found, cannot save draft');
+            return false;
+        }
+        
+        // Gather all category data
+        document.querySelectorAll('.category-section').forEach((catSection, catIndex) => {
+            const categoryNameInput = catSection.querySelector('.category-name');
+            const categoryName = categoryNameInput ? categoryNameInput.value : '';
+            const clues = [];
+            
+            // Gather all questions for this category
+            catSection.querySelectorAll('.question-item').forEach((qItem) => {
+                const valueElement = qItem.querySelector('.question-value');
+                const answerInput = qItem.querySelector('.question-answer');
+                const questionInput = qItem.querySelector('.question-question');
+                
+                const value = valueElement ? valueElement.textContent : '';
+                const answer = answerInput ? answerInput.value : '';
+                const question = questionInput ? questionInput.value : '';
+                
+                clues.push({
+                    value,
+                    answer, 
+                    question
+                });
+            });
+            
+            formData.categories.push({
+                name: categoryName,
+                clues: clues
+            });
+        });
+        
+        // Make sure we have the right number of categories
+        if (formData.categories.length === 0) {
+            console.warn('No categories found when saving draft');
+        }
+        
+        // Save to localStorage
+        storage.save('jeopardyFormDraft', formData);
+        
+        // Update last saved timestamp display
+        updateLastSavedDisplay();
+        return true;
+    } catch (error) {
+        console.error('Error saving form draft:', error);
+        return false;
+    }
+}
+
+// Load form draft from localStorage
+function loadFormDraft() {
+    const savedDraft = storage.load('jeopardyFormDraft');
+    if (!savedDraft) return false;
+    
+    // Set title
+    if (savedDraft.title) {
+        document.getElementById('board-title').value = savedDraft.title;
+        // Mark as having content for validation
+        document.getElementById('board-title').classList.add('has-content');
+    }
+    
+    // Clear existing categories
+    categoriesContainer.innerHTML = '';
+    
+    try {
+        // Basic safety check
+        if (!categoriesContainer) {
+            console.error("Categories container not found");
+            return false;
+        }
+        
+        // Make sure we have the right number of categories (5)
+        const categoryCount = savedDraft.categories ? Math.min(savedDraft.categories.length, 5) : 0;
+        const categoriesToCreate = Math.max(5 - categoryCount, 0);
+        
+        // First create empty categories to ensure proper structure
+        for (let i = 0; i < 5; i++) {
+            addCategory();
+        }
+        
+        // Then populate with saved data
+        if (savedDraft.categories && savedDraft.categories.length > 0) {
+            // Get all created category sections
+            const categorySections = document.querySelectorAll('.category-section');
+            if (categorySections.length !== 5) {
+                console.error(`Expected 5 categories, but found ${categorySections.length}`);
+            }
+            
+            // Update each category with saved data
+            savedDraft.categories.forEach((category, index) => {
+                if (index >= 5) return; // Only handle the first 5 categories
+                
+                const catSection = categorySections[index];
+                if (!catSection) {
+                    console.error(`Category section ${index} not found`);
+                    return;
+                }
+                
+                // Set category name
+                const catNameInput = catSection.querySelector('.category-name');
+                if (catNameInput) {
+                    catNameInput.value = category.name || '';
+                    if (category.name) {
+                        catNameInput.classList.add('has-content');
+                    }
+                } else {
+                    console.error(`Category ${index} name input not found`);
+                }
+                
+                // Set question/answer values
+                const questionItems = catSection.querySelectorAll('.question-item');
+                if (category.clues) {
+                    category.clues.forEach((clue, qIndex) => {
+                        if (qIndex >= questionItems.length) return;
+                        
+                        const qItem = questionItems[qIndex];
+                        const answerInput = qItem.querySelector('.question-answer');
+                        const questionInput = qItem.querySelector('.question-question');
+                        
+                        if (answerInput) {
+                            answerInput.value = clue.answer || '';
+                            if (clue.answer) answerInput.classList.add('has-content');
+                        }
+                        
+                        if (questionInput) {
+                            questionInput.value = clue.question || '';
+                            if (clue.question) questionInput.classList.add('has-content');
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Apply validation styling to all fields
+        document.querySelectorAll('.required-field').forEach(field => {
+            if (field.value.trim() !== '') {
+                field.classList.add('has-content');
+                field.classList.remove('validation-error');
+            } else {
+                field.classList.remove('has-content');
+                field.classList.add('validation-error');
+            }
+        });
+        
+        // Log form structure for debugging
+        console.log('Form restored from draft');
+        debugFormStructure();
+    } catch (error) {
+        console.error('Error loading form draft:', error);
+        
+        // Emergency reset of form
+        reinitializeForm();
+        return false;
+    }
+    
+    // Load teams if any
+    if (savedDraft.teams && savedDraft.teams.length > 0) {
+        formTeams = [...savedDraft.teams];
+        renderFormTeams();
+    } else {
+        // Ensure at least one default team
+        if (formTeams.length === 0) {
+            addFormTeam();
+        }
+    }
+    
+    // Update last saved display
+    updateLastSavedDisplay();
+    
+    return true;
+}
+
+// Function to completely reinitialize the form when there are issues
+function reinitializeForm() {
+    console.log("Reinitializing form due to structure issues");
+    
+    // Clear the entire form
+    categoriesContainer.innerHTML = '';
+    
+    // Add 5 fresh categories
+    for (let i = 0; i < 5; i++) {
+        addCategory();
+    }
+    
+    // Reset teams
+    formTeams = [];
+    addFormTeam();
+    renderFormTeams();
+    
+    // Clear title
+    const titleInput = document.getElementById('board-title');
+    if (titleInput) {
+        titleInput.value = '';
+        titleInput.classList.remove('has-content');
+    }
+    
+    // Re-add validation listeners
+    addValidationListeners();
+    
+    // Hide validation messages
+    const validationMessage = document.getElementById('validation-message');
+    if (validationMessage) {
+        validationMessage.style.display = 'none';
+    }
+}
+
+// Discard the form draft
+function discardFormDraft() {
+    storage.remove('jeopardyFormDraft');
+    updateLastSavedDisplay();
+}
+
+// Update the display showing when the form was last saved
+// Manual saves occur when the user clicks the "Save Now" button
+// Timestamp includes seconds to provide more precise save time feedback
+function updateLastSavedDisplay() {
+    const savedDraft = storage.load('jeopardyFormDraft');
+    const lastSavedDisplay = document.getElementById('last-saved-display');
+    
+    if (!lastSavedDisplay) return;
+    
+    if (savedDraft && savedDraft.lastModified) {
+        const date = new Date(savedDraft.lastModified);
+        
+        // Format date in the style: M/D/YYYY, h:MM:SS AM/PM
+        const month = date.getMonth() + 1; // getMonth() is 0-indexed
+        const day = date.getDate();
+        const year = date.getFullYear();
+        
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert 0 to 12 for 12 AM
+        
+        const formattedDate = `${month}/${day}/${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+        
+        lastSavedDisplay.textContent = `Last saved: ${formattedDate}`;
+        lastSavedDisplay.style.display = 'block';
+        
+        // Show discard button when we have a saved draft
+        const discardBtn = document.getElementById('discard-draft-btn');
+        if (discardBtn) discardBtn.style.display = 'block';
+    } else {
+        lastSavedDisplay.textContent = 'No draft saved';
+        lastSavedDisplay.style.display = 'block';
+        
+        // Hide discard button if no draft
+        const discardBtn = document.getElementById('discard-draft-btn');
+        if (discardBtn) discardBtn.style.display = 'none';
+    }
+}
+
+// --- Draft Management Event Listeners ---
+// Modified setupDraftEventListeners to handle dynamic elements
+function setupDraftEventListeners() {
+    const discardDraftBtn = document.getElementById('discard-draft-btn');
+    const saveDraftBtn = document.getElementById('save-draft-btn');
+    
+    // Setup manual save button
+    if (saveDraftBtn) {
+        // Clone and replace to remove any existing event listeners
+        const newSaveBtn = saveDraftBtn.cloneNode(true);
+        saveDraftBtn.parentNode.replaceChild(newSaveBtn, saveDraftBtn);
+        
+        // Add a single event listener to the new save button
+        newSaveBtn.addEventListener('click', function() {
+            // Save immediately
+            if (saveFormDraft()) {
+                // Show brief feedback
+                const originalText = this.textContent;
+                this.textContent = "Saved!";
+                this.disabled = true;
+                
+                // Reset button after 1.5 seconds
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.disabled = false;
+                }, 1500);
+            }
+        });
+    }
+    
+    // Remove any existing event listeners from discard button to prevent duplicates
+    if (discardDraftBtn) {
+        // Clone and replace to remove all event listeners
+        const newDiscardBtn = discardDraftBtn.cloneNode(true);
+        discardDraftBtn.parentNode.replaceChild(newDiscardBtn, discardDraftBtn);
+        
+        // Add a single event listener to the new button
+        newDiscardBtn.addEventListener('click', function() {
+            const confirmed = confirm('Are you sure you want to discard this draft? This cannot be undone.');
+            if (confirmed) {
+                discardFormDraft();
+                // Reset the form
+                document.getElementById('board-title').value = '';
+                document.getElementById('board-title').classList.remove('has-content');
+                
+                categoriesContainer.innerHTML = '';
+                for (let i = 0; i < 5; i++) {
+                    addCategory();
+                }
+                formTeams = [];
+                addFormTeam();
+                renderFormTeams();
+                alert('Draft discarded.');
+            }
+        });
+    }
+    
+    // Set up validation for the board title (no auto-save)
+    const boardTitle = document.getElementById('board-title');
+    
+    // Set up delegation for category container to catch all dynamic elements
+    categoriesContainer.addEventListener('input', function(e) {
+        const target = e.target;
+        
+        // Check if the input is from one of our form fields and handle validation
+        if (
+            target.classList.contains('category-name') ||
+            target.classList.contains('question-answer') ||
+            target.classList.contains('question-question')
+        ) {
+            // Handle validation styling for required fields
+            if (target.classList.contains('required-field')) {
+                if (target.value.trim() !== '') {
+                    target.classList.remove('validation-error');
+                    target.classList.add('has-content');
+                } else {
+                    target.classList.remove('has-content');
+                    target.classList.add('validation-error');
+                }
+            }
+        }
+    });
+}
+
+// Auto-save functionality has been removed in favor of manual save only
+
+// Setup draft event listeners on page load
+// Add event listener to fix any potential form rendering issues
+document.addEventListener('DOMContentLoaded', function() {
+    setupDraftEventListeners();
+    
+    // Make sure categories container always exists
+    if (!categoriesContainer) {
+        console.error('Categories container not found, cannot set up draft functionality');
+    }
+});
+
+// Debug function to help diagnose form issues
+function debugFormStructure() {
+    console.log('---- Form Structure Debug ----');
+    console.log('Board title:', document.getElementById('board-title') ? 'exists' : 'missing');
+    console.log('Categories container:', categoriesContainer ? 'exists' : 'missing');
+    
+    const categoryCount = document.querySelectorAll('.category-section').length;
+    console.log('Category sections:', categoryCount);
+    
+    document.querySelectorAll('.category-section').forEach((cat, i) => {
+        console.log(`Category ${i+1} name input:`, cat.querySelector('.category-name') ? 'exists' : 'missing');
+        console.log(`Category ${i+1} question items:`, cat.querySelectorAll('.question-item').length);
     });
 }
