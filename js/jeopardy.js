@@ -711,12 +711,21 @@ function createBoardFromForm(shouldDownload) {
                 if (!firstEmptyField) firstEmptyField = questionInput;
             }
             
-            categoryQuestions.push({
-                value: value,
-                answer: answer,
-                question: question
-            });
+            // Only add to categoryQuestions if this specific item has both answer and question
+            // This is a defense in case the validation somehow continues despite empty fields
+            if (answer && question) {
+                categoryQuestions.push({
+                    value: value,
+                    answer: answer,
+                    question: question
+                });
+            }
         });
+        
+        // Make sure this category has all 5 questions complete
+        if (categoryQuestions.length < 5) {
+            hasEmptyFields = true;
+        }
         
         allQuestions.push(categoryQuestions);
     });
@@ -748,6 +757,12 @@ function createBoardFromForm(shouldDownload) {
     document.querySelectorAll('.validation-error').forEach(field => {
         field.classList.remove('validation-error');
     });
+    
+    // Check that we have exactly 5 categories and all questions
+    if (categories.length !== 5 || allQuestions.some(categoryQ => categoryQ.length !== 5)) {
+        alert("Cannot create game board: Missing categories or questions");
+        return null;
+    }
     
     // All validation passed, generate text representation of board
     let boardText = `Title: ${boardTitle}\n\n`;
@@ -800,17 +815,56 @@ function createBoardFromForm(shouldDownload) {
     };
 }
 
+// Pre-validate form fields before submission
+function validateFormBeforeSubmission() {
+    let hasEmptyFields = false;
+    let firstEmptyField = null;
+    
+    // Check all required fields
+    document.querySelectorAll('.required-field').forEach(field => {
+        if (!field.value.trim()) {
+            hasEmptyFields = true;
+            field.classList.add('validation-error');
+            field.classList.remove('has-content');
+            
+            if (!firstEmptyField) {
+                firstEmptyField = field;
+            }
+        }
+    });
+    
+    if (hasEmptyFields) {
+        // Show validation message
+        const validationMessage = document.getElementById('validation-message');
+        validationMessage.textContent = "Please fill out all required fields";
+        validationMessage.style.display = 'block';
+        
+        // Focus on the first empty field
+        if (firstEmptyField) {
+            firstEmptyField.focus();
+        }
+        
+        return false;
+    }
+    
+    return true;
+}
+
 // Generate jeopardy board from form data (without download)
 generateBoardBtn.addEventListener('click', function() {
-    createBoardFromForm(false);
+    if (validateFormBeforeSubmission()) {
+        createBoardFromForm(false);
+    }
 });
 
 // Generate jeopardy board from form data and download the file
 generateDownloadBtn.addEventListener('click', function() {
-    const boardData = createBoardFromForm(true);
-    if (boardData) {
-        // Download the generated board as a text file
-        downloadBoardFile(boardData.text, `${boardData.title.replace(/\s+/g, '-').toLowerCase()}.txt`);
+    if (validateFormBeforeSubmission()) {
+        const boardData = createBoardFromForm(true);
+        if (boardData) {
+            // Download the generated board as a text file
+            downloadBoardFile(boardData.text, `${boardData.title.replace(/\s+/g, '-').toLowerCase()}.txt`);
+        }
     }
 });
 
@@ -831,8 +885,11 @@ function addValidationListeners() {
         // Initially check if field has content and apply styling
         if (field.value.trim() !== '') {
             field.classList.add('has-content');
+            field.classList.remove('validation-error');
         } else {
             field.classList.remove('has-content');
+            // Mark empty fields as invalid from the beginning
+            field.classList.add('validation-error');
         }
         
         // Add event listener for input changes
@@ -847,8 +904,25 @@ function addValidationListeners() {
                     document.getElementById('validation-message').style.display = 'none';
                 }
             } else {
-                // If field is emptied, remove has-content class
+                // If field is emptied, remove has-content class and mark as invalid
                 this.classList.remove('has-content');
+                this.classList.add('validation-error');
+                
+                // Show validation message when fields are emptied
+                document.getElementById('validation-message').textContent = "Please fill out all required fields";
+                document.getElementById('validation-message').style.display = 'block';
+            }
+        });
+        
+        // Also add blur (focus lost) event to catch when users tab away from fields
+        field.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.remove('has-content');
+                this.classList.add('validation-error');
+                
+                // Show validation message
+                document.getElementById('validation-message').textContent = "Please fill out all required fields";
+                document.getElementById('validation-message').style.display = 'block';
             }
         });
     });
