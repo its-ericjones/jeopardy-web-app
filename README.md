@@ -1,6 +1,6 @@
 # Jeopardy Game
 
-A web-based Jeopardy game for group presentations and interactive gameplay. Build custom game boards through a form  or upload existing text files for quick setup.
+A web-based Jeopardy game for group presentations and interactive gameplay. Build custom game boards through a form or upload existing text files for quick setup.
 
 ## Screenshots
 ![Jeopardy Game Board](screenshots/game-board-loaded.png)
