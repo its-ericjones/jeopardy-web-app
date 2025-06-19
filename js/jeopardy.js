@@ -185,16 +185,16 @@ function populateJeopardyBoardFromText(text) {
         currentCategory = line.substring(9).trim();
         currentQuestions = [];
     } else if (/^\d+\|/.test(line)) {
-        // Parse question/answer/value line
+        // Parse value|clue|response line
         const parts = line.split('|');
         if (parts.length >= 3) {
         currentQuestions.push({
             value: parts[0].trim(),
-            // File format is: value|answer|question
-            // - answer: the correct response revealed with "Show Answer" (in question form)
+            // File format is: value|clue|response
             // - question: the clue shown first to players
-            question: parts.slice(2).join('|').trim(), // This is shown first (Jeopardy clue)
-            answer: parts[1].trim()                    // This is shown after "Show Answer"
+            // - answer: the correct response revealed with "Show Answer" (in question form)
+            question: parts[1].trim(), // This is shown first (Jeopardy clue)
+            answer: parts.slice(2).join('|').trim() // This is shown after "Show Answer"
         });
         }
     }
@@ -870,7 +870,7 @@ function createBoardFromForm(shouldDownload) {
         boardText += `Category: ${category}\n`;
         
         allQuestions[catIndex].forEach(q => {
-            boardText += `${q.value}|${q.answer}|${q.question}\n`;
+            boardText += `${q.value}|${q.question}|${q.answer}\n`;
         });
         
         boardText += '\n';
