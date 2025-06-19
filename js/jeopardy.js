@@ -190,9 +190,9 @@ function populateJeopardyBoardFromText(text) {
         if (parts.length >= 3) {
         currentQuestions.push({
             value: parts[0].trim(),
-            // File format is: value|answer|question but we store differently:
+            // File format is: value|answer|question
+            // - answer: the correct response revealed with "Show Answer" (in question form)
             // - question: the clue shown first to players
-            // - answer: the correct response revealed with "Show Answer"
             question: parts.slice(2).join('|').trim(), // This is shown first (Jeopardy clue)
             answer: parts[1].trim()                    // This is shown after "Show Answer"
         });
@@ -711,15 +711,6 @@ function addCategory() {
         valueDiv.textContent = value;
         questionItem.appendChild(valueDiv);
         
-        // Create answer input (what's shown after clicking "Show Answer")
-        const answerInput = document.createElement('input');
-        answerInput.type = 'text';
-        answerInput.className = 'question-answer required-field';
-        answerInput.placeholder = 'Correct Response (shown after "Show Answer")';
-        answerInput.setAttribute('data-value', value);
-        answerInput.required = true;
-        questionItem.appendChild(answerInput);
-        
         // Create question input (what's shown to players first)
         const questionInput = document.createElement('input');
         questionInput.type = 'text';
@@ -728,6 +719,15 @@ function addCategory() {
         questionInput.setAttribute('data-value', value);
         questionInput.required = true;
         questionItem.appendChild(questionInput);
+        
+        // Create answer input (what's shown after clicking "Show Answer")
+        const answerInput = document.createElement('input');
+        answerInput.type = 'text';
+        answerInput.className = 'question-answer required-field';
+        answerInput.placeholder = 'Correct Response (in question form)';
+        answerInput.setAttribute('data-value', value);
+        answerInput.required = true;
+        questionItem.appendChild(answerInput);
         
         questionsContainer.appendChild(questionItem);
     });
