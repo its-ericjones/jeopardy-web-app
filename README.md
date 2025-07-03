@@ -34,12 +34,12 @@ A web-based Jeopardy game for group presentations and interactive gameplay. Buil
    **Option A: Create a new board**
    - Click "Create Board Manually" on the home screen
    - Fill in the form with your game title, five categories, five questions/answers per category and teams
-     - Save a draft at anytime and come back to it later by clicking "Continue Editing" at the top of the page
+     - Save a draft at anytime by clicking 'Save Draft' to store it in your browser's local storage, then return to it later by clicking 'Continue Editing' at the top of the page. You can also export your draft as a text file to save locally and continue working from any device, or import a previously saved draft file.
    - When complete, click either:
      - "Create Game Board" to generate your game, or
      - "Create and Download" to also save a text file for future use
 
-    ![Game Board Creation](screenshots/game-board-manual-creation-draft.png)
+    ![Game Board Creation](screenshots/game-board-manual-creation-draft-options.png)
 
     ![Game Board Draft Banner](screenshots/game-board-manual-creation-draft-banner.png)
     
