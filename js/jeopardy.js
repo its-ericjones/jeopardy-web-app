@@ -1366,6 +1366,9 @@ function updateLastSavedDisplay() {
 function setupDraftEventListeners() {
     const discardDraftBtn = document.getElementById('discard-draft-btn');
     const saveDraftBtn = document.getElementById('save-draft-btn');
+    const exportDraftBtn = document.getElementById('export-draft-btn');
+    const importDraftBtn = document.getElementById('import-draft-btn');
+    const draftFileInput = document.getElementById('draft-file-input');
     
     // Setup manual save button
     if (saveDraftBtn) {
@@ -1414,6 +1417,29 @@ function setupDraftEventListeners() {
                 addFormTeam();
                 renderFormTeams();
                 alert('Draft discarded.');
+            }
+        });
+    }
+    
+    // Setup export draft button
+    if (exportDraftBtn) {
+        exportDraftBtn.addEventListener('click', function() {
+            exportFormDraft();
+        });
+    }
+    
+    // Setup import draft button and file input
+    if (importDraftBtn && draftFileInput) {
+        importDraftBtn.addEventListener('click', function() {
+            draftFileInput.click();
+        });
+        
+        draftFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                importFormDraft(file);
+                // Clear the file input so the same file can be selected again
+                e.target.value = '';
             }
         });
     }
@@ -1471,4 +1497,258 @@ function debugFormStructure() {
         console.log(`Category ${i+1} name input:`, cat.querySelector('.category-name') ? 'exists' : 'missing');
         console.log(`Category ${i+1} question items:`, cat.querySelectorAll('.question-item').length);
     });
+}
+
+// --- Draft File Import/Export Functionality ---
+// Export current form draft to a downloadable file
+function exportFormDraft() {
+    try {
+        // Get current form data (same as saveFormDraft but for export)
+        const boardTitle = document.getElementById('board-title');
+        const formData = {
+            isDraft: true, // Special marker to identify draft files
+            title: boardTitle ? boardTitle.value : '',
+            categories: [],
+            teams: formTeams || [],
+            lastModified: new Date().toISOString(),
+            exportedAt: new Date().toISOString()
+        };
+        
+        // Verify categories container exists
+        if (!categoriesContainer) {
+            alert('Cannot export draft: Form not ready');
+            return false;
+        }
+        
+        // Gather all category data
+        document.querySelectorAll('.category-section').forEach((catSection, catIndex) => {
+            const categoryNameInput = catSection.querySelector('.category-name');
+            const categoryName = categoryNameInput ? categoryNameInput.value : '';
+            const clues = [];
+            
+            // Gather all questions for this category
+            catSection.querySelectorAll('.question-item').forEach((qItem) => {
+                const valueElement = qItem.querySelector('.question-value');
+                const answerInput = qItem.querySelector('.question-answer');
+                const questionInput = qItem.querySelector('.question-question');
+                
+                const value = valueElement ? valueElement.textContent : '';
+                const answer = answerInput ? answerInput.value : '';
+                const question = questionInput ? questionInput.value : '';
+                
+                clues.push({
+                    value,
+                    answer, 
+                    question
+                });
+            });
+            
+            formData.categories.push({
+                name: categoryName,
+                clues: clues
+            });
+        });
+        
+        // Create file content in a special draft format
+        let draftContent = `[JEOPARDY DRAFT]\n`;
+        draftContent += `Title: ${formData.title}\n`;
+        draftContent += `Created: ${formData.exportedAt}\n`;
+        draftContent += `Teams: ${formData.teams.map(t => t.name).join(', ')}\n\n`;
+        
+        // Add categories and clues
+        formData.categories.forEach((category, catIndex) => {
+            draftContent += `Category: ${category.name}\n`;
+            category.clues.forEach(clue => {
+                draftContent += `${clue.value}|${clue.question}|${clue.answer}\n`;
+            });
+            draftContent += '\n';
+        });
+        
+        // Download the file
+        const filename = formData.title ? 
+            `${formData.title.replace(/\s+/g, '-').toLowerCase()}-draft.txt` : 
+            'jeopardy-draft.txt';
+            
+        downloadDraftFile(draftContent, filename);
+        return true;
+    } catch (error) {
+        console.error('Error exporting form draft:', error);
+        alert('Error exporting draft. Please try again.');
+        return false;
+    }
+}
+
+// Import draft from a file
+function importFormDraft(file) {
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        try {
+            const fileContent = evt.target.result;
+            
+            // Parse any text file as a draft (no need to distinguish between draft and complete files)
+            const lines = fileContent.split(/\r?\n/);
+            let title = '';
+            let teams = [];
+            let categories = [];
+            let currentCategory = null;
+            let currentClues = [];
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (!line || line === '[JEOPARDY DRAFT]') continue;
+                
+                if (line.toLowerCase().startsWith('title:')) {
+                    title = line.substring(6).trim();
+                } else if (line.toLowerCase().startsWith('teams:')) {
+                    const teamNames = line.substring(6).trim();
+                    if (teamNames) {
+                        teams = teamNames.split(',').map(name => ({
+                            name: name.trim(),
+                            score: 0
+                        }));
+                    }
+                } else if (line.toLowerCase().startsWith('created:')) {
+                    // Skip the created timestamp line from exported drafts
+                    continue;
+                } else if (line.toLowerCase().startsWith('category:')) {
+                    // Save previous category if it exists
+                    if (currentCategory) {
+                        categories.push({
+                            name: currentCategory,
+                            clues: currentClues
+                        });
+                    }
+                    currentCategory = line.substring(9).trim();
+                    currentClues = [];
+                } else if (/^\d+\|/.test(line)) {
+                    // Parse value|question|answer line
+                    const parts = line.split('|');
+                    if (parts.length >= 3) {
+                        currentClues.push({
+                            value: parts[0].trim(),
+                            question: parts[1].trim(),
+                            answer: parts.slice(2).join('|').trim()
+                        });
+                    }
+                }
+            }
+            
+            // Save last category
+            if (currentCategory) {
+                categories.push({
+                    name: currentCategory,
+                    clues: currentClues
+                });
+            }
+            
+            // If no teams were found in the file, add a default team
+            if (teams.length === 0) {
+                teams = [{ name: 'Team 1', score: 0 }];
+            }
+            
+            // Apply the imported data to the form
+            applyImportedDraftToForm(title, categories, teams);
+            
+        } catch (error) {
+            console.error('Error importing draft:', error);
+            alert('Error importing draft file. Please check the file format.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Apply imported draft data to the form
+function applyImportedDraftToForm(title, categories, teams) {
+    try {
+        // Set title
+        const titleInput = document.getElementById('board-title');
+        if (titleInput) {
+            titleInput.value = title || '';
+            if (title) {
+                titleInput.classList.add('has-content');
+            } else {
+                titleInput.classList.remove('has-content');
+            }
+        }
+        
+        // Clear and rebuild form
+        categoriesContainer.innerHTML = '';
+        
+        // Create 5 categories (pad with empty ones if needed)
+        for (let i = 0; i < 5; i++) {
+            addCategory();
+        }
+        
+        // Populate categories with imported data
+        const categorySections = document.querySelectorAll('.category-section');
+        categories.forEach((category, index) => {
+            if (index >= 5) return; // Only handle first 5 categories
+            
+            const catSection = categorySections[index];
+            if (!catSection) return;
+            
+            // Set category name
+            const catNameInput = catSection.querySelector('.category-name');
+            if (catNameInput) {
+                catNameInput.value = category.name || '';
+                if (category.name) {
+                    catNameInput.classList.add('has-content');
+                } else {
+                    catNameInput.classList.remove('has-content');
+                }
+            }
+            
+            // Set questions/answers
+            const questionItems = catSection.querySelectorAll('.question-item');
+            category.clues.forEach((clue, qIndex) => {
+                if (qIndex >= questionItems.length) return;
+                
+                const qItem = questionItems[qIndex];
+                const answerInput = qItem.querySelector('.question-answer');
+                const questionInput = qItem.querySelector('.question-question');
+                
+                if (answerInput) {
+                    answerInput.value = clue.answer || '';
+                    if (clue.answer) {
+                        answerInput.classList.add('has-content');
+                    } else {
+                        answerInput.classList.remove('has-content');
+                    }
+                }
+                
+                if (questionInput) {
+                    questionInput.value = clue.question || '';
+                    if (clue.question) {
+                        questionInput.classList.add('has-content');
+                    } else {
+                        questionInput.classList.remove('has-content');
+                    }
+                }
+            });
+        });
+        
+        // Set teams
+        formTeams = teams && teams.length > 0 ? [...teams] : [{ name: 'Team 1', score: 0 }];
+        renderFormTeams();
+        
+        // Save as localStorage draft
+        saveFormDraft();
+        
+        alert('Draft imported successfully!');
+        
+    } catch (error) {
+        console.error('Error applying imported draft:', error);
+        alert('Error applying imported draft to form.');
+    }
+}
+
+// Download draft file
+function downloadDraftFile(content, filename) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
 }
