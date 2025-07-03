@@ -689,6 +689,14 @@ input.team-name {
     margin-top: 5px;
 }
 
+.draft-file-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
+
 #last-saved-display {
     font-style: italic;
     color: #666;
