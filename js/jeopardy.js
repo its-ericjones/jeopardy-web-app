@@ -1421,16 +1421,25 @@ function setupDraftEventListeners() {
         });
     }
     
-    // Setup export draft button
+    // Setup export draft button - Remove duplicate listeners
     if (exportDraftBtn) {
-        exportDraftBtn.addEventListener('click', function() {
+        // Clone and replace to remove any existing event listeners
+        const newExportBtn = exportDraftBtn.cloneNode(true);
+        exportDraftBtn.parentNode.replaceChild(newExportBtn, exportDraftBtn);
+        
+        // Add a single event listener to the new button
+        newExportBtn.addEventListener('click', function() {
             exportFormDraft();
         });
     }
     
     // Setup import draft button and file input
     if (importDraftBtn && draftFileInput) {
-        importDraftBtn.addEventListener('click', function() {
+        // Clone and replace to remove any existing event listeners
+        const newImportBtn = importDraftBtn.cloneNode(true);
+        importDraftBtn.parentNode.replaceChild(newImportBtn, importDraftBtn);
+        
+        newImportBtn.addEventListener('click', function() {
             draftFileInput.click();
         });
         
