@@ -566,6 +566,7 @@ function initializeFileTeams() {
 // Initialize form elements
 const showUploadBtn = document.getElementById('show-upload');
 const showCreateFormBtn = document.getElementById('show-create-form');
+const loadGameFileBtn = document.getElementById('load-game-file');
 const createFormDiv = document.getElementById('create-form');
 const generateBoardBtn = document.getElementById('generate-board');
 const generateDownloadBtn = document.getElementById('generate-download');
@@ -576,8 +577,33 @@ const DEFAULT_CATEGORY = "New Category";
 const DEFAULT_VALUES = [100, 200, 300, 400, 500];
 const DEFAULT_QUESTIONS = Array(5).fill().map(() => ({ value: "", question: "", answer: "" }));
 
-// Trigger the file dialog when Upload Text File button is clicked
+// Trigger the file dialog when Load Draft File button is clicked
 showUploadBtn.addEventListener('click', function() {
+    // Hide the create form if it's visible
+    createFormDiv.classList.add('hide');
+    
+    // Hide the team setup until file is selected
+    document.getElementById('file-teams-setup').classList.add('hide');
+    
+    // Keep stats table hidden until a game board is actually loaded
+    setStatsVisibility(false);
+    
+    // Initialize file teams for the team setup screen
+    fileTeams = [];
+    initializeFileTeams();
+    
+    // Remove draft notification if present
+    const draftNotification = document.getElementById('draft-notification');
+    if (draftNotification) {
+        draftNotification.remove();
+    }
+    
+    // Programmatically click the file input to open file dialog
+    document.getElementById('jeopardy-upload').click();
+});
+
+// Trigger the file dialog when Load Game File button is clicked
+loadGameFileBtn.addEventListener('click', function() {
     // Hide the create form if it's visible
     createFormDiv.classList.add('hide');
     
