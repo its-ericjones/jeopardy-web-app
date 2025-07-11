@@ -21,8 +21,18 @@
   <div id="upload-controls">
     <h2>Create Your Own Jeopardy</h2>
     <div class="option-buttons">
-      <button id="show-create-form">Create Board Manually</button>
-      <button id="show-upload">Upload Text File</button>
+      <div class="option-card">
+        <button id="show-create-form">Create Board Manually</button>
+        <p class="option-description">Build a new game board from scratch</p>
+      </div>
+      <div class="option-card">
+        <button id="show-upload">Load Draft File</button>
+        <p class="option-description">Continue working on an incomplete game draft</p>
+      </div>
+      <div class="option-card">
+        <button id="load-game-file">Load Game File</button>
+        <p class="option-description">Load a complete game and start playing immediately</p>
+      </div>
     </div>
     
     <!-- Hidden file input that will be triggered by the Upload button -->
