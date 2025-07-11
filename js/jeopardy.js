@@ -138,29 +138,272 @@ function parseTitleFromText(text) {
 }
 
 // --- File upload and board population ---
-// When a file is uploaded, read it and fill the board
-document.getElementById('jeopardy-upload').addEventListener('change', function(e) {
+// File validation functions
+function validateDraftFile(fileContent) {
+    // Draft files should either start with [JEOPARDY DRAFT] or be incomplete games
+    const lines = fileContent.split(/\r?\n/);
+    
+    // Check if it's explicitly marked as a draft
+    if (lines[0] && lines[0].trim() === '[JEOPARDY DRAFT]') {
+        return { isValid: true, type: 'draft' };
+    }
+    
+    // Check if it looks like a complete game file (starts with Title:)
+    if (lines[0] && lines[0].trim().toLowerCase().startsWith('title:')) {
+        // Count categories and questions to see if it's complete
+        let categoryCount = 0;
+        let hasIncompleteCategory = false;
+        let currentCategoryQuestions = 0;
+        
+        for (let line of lines) {
+            line = line.trim();
+            if (line.toLowerCase().startsWith('category:')) {
+                if (categoryCount > 0 && currentCategoryQuestions < 5) {
+                    hasIncompleteCategory = true;
+                }
+                categoryCount++;
+                currentCategoryQuestions = 0;
+            } else if (/^\d+\|/.test(line)) {
+                const parts = line.split('|');
+                if (parts.length >= 3 && parts[1].trim() && parts[2].trim()) {
+                    currentCategoryQuestions++;
+                }
+            }
+        }
+        
+        // Check last category
+        if (currentCategoryQuestions < 5) {
+            hasIncompleteCategory = true;
+        }
+        
+        // If it has fewer than 5 categories or incomplete categories, it's a draft
+        if (categoryCount < 5 || hasIncompleteCategory) {
+            return { isValid: true, type: 'draft' };
+        } else {
+            return { isValid: false, type: 'complete', message: 'This appears to be a complete game file. Please use the "Load Game File" button instead.' };
+        }
+    }
+    
+    // If it doesn't start with Title: or [JEOPARDY DRAFT], accept it as a potential draft
+    return { isValid: true, type: 'draft' };
+}
+
+function validateGameFile(fileContent) {
+    const lines = fileContent.split(/\r?\n/);
+    
+    // Game files should start with "Title:" and be complete
+    if (!lines[0] || !lines[0].trim().toLowerCase().startsWith('title:')) {
+        return { isValid: false, message: 'This does not appear to be a valid game file. Game files should start with "Title: [name]".' };
+    }
+    
+    // Check if it's marked as a draft
+    if (lines.some(line => line.trim() === '[JEOPARDY DRAFT]')) {
+        return { isValid: false, message: 'This appears to be a draft file. Please use the "Load Draft File" button instead.' };
+    }
+    
+    // Count categories and questions to ensure completeness
+    let categoryCount = 0;
+    let hasIncompleteCategory = false;
+    let currentCategoryQuestions = 0;
+    
+    for (let line of lines) {
+        line = line.trim();
+        if (line.toLowerCase().startsWith('category:')) {
+            if (categoryCount > 0 && currentCategoryQuestions < 5) {
+                hasIncompleteCategory = true;
+            }
+            categoryCount++;
+            currentCategoryQuestions = 0;
+        } else if (/^\d+\|/.test(line)) {
+            const parts = line.split('|');
+            if (parts.length >= 3 && parts[1].trim() && parts[2].trim()) {
+                currentCategoryQuestions++;
+            }
+        }
+    }
+    
+    // Check last category
+    if (currentCategoryQuestions < 5) {
+        hasIncompleteCategory = true;
+    }
+    
+    if (categoryCount < 5) {
+        return { isValid: false, message: 'This game file is incomplete. It should have 5 categories with 5 questions each. Please use the "Load Draft File" button instead.' };
+    }
+    
+    if (hasIncompleteCategory) {
+        return { isValid: false, message: 'This game file has incomplete categories (missing questions/answers). Please use the "Load Draft File" button instead.' };
+    }
+    
+    return { isValid: true, type: 'complete' };
+}
+
+// When a draft file is uploaded, read it and handle appropriately
+document.getElementById('jeopardy-draft-upload').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
+    
     const reader = new FileReader();
     reader.onload = function(evt) {
-    // Parse title from file if present
-    const fileText = evt.target.result;
-    const parsedTitle = parseTitleFromText(fileText);
-    const title = parsedTitle;
-    saveTitle(title);
-    saveBoardText(fileText);
-    
-    // Hide the create form if it's visible
-    createFormDiv.classList.add('hide');
-    
-    // Instead of immediately showing the board, show team setup first
-    document.getElementById('file-teams-setup').classList.remove('hide');
-    
-    // Save the file text for later use when continuing to the game
-    window.uploadedFileText = fileText;
+        const fileText = evt.target.result;
+        const validation = validateDraftFile(fileText);
+        
+        if (!validation.isValid) {
+            alert(validation.message);
+            e.target.value = ''; // Clear the file input
+            return;
+        }
+        
+        // Check if it's a draft that should be imported to the form
+        if (fileText.includes('[JEOPARDY DRAFT]')) {
+            // Show the create form and import the draft
+            document.getElementById('create-form').classList.remove('hide');
+            document.getElementById('file-teams-setup').classList.add('hide');
+            
+            // Initialize the form first
+            reinitializeForm();
+            
+            // Use the existing import functionality with a mock file object
+            const mockFile = {
+                name: file.name,
+                size: file.size
+            };
+            
+            // Create a new reader for the import function
+            const importReader = new FileReader();
+            importReader.onload = function(importEvt) {
+                try {
+                    const fileContent = importEvt.target.result;
+                    
+                    // Parse the draft file content (same logic as importFormDraft)
+                    const lines = fileContent.split(/\r?\n/);
+                    let title = '';
+                    let teams = [];
+                    let categories = [];
+                    let currentCategory = null;
+                    let currentClues = [];
+                    
+                    for (let line of lines) {
+                        line = line.trim();
+                        if (!line || line === '[JEOPARDY DRAFT]') continue;
+                        
+                        if (line.toLowerCase().startsWith('title:')) {
+                            title = line.substring(6).trim();
+                        } else if (line.toLowerCase().startsWith('teams:')) {
+                            const teamNames = line.substring(6).trim();
+                            if (teamNames) {
+                                teams = teamNames.split(',').map(name => ({
+                                    name: name.trim(),
+                                    score: 0
+                                }));
+                            }
+                        } else if (line.toLowerCase().startsWith('created:')) {
+                            // Skip the created timestamp line from exported drafts
+                            continue;
+                        } else if (line.toLowerCase().startsWith('category:')) {
+                            // Save previous category if it exists
+                            if (currentCategory) {
+                                categories.push({
+                                    name: currentCategory,
+                                    clues: currentClues
+                                });
+                            }
+                            currentCategory = line.substring(9).trim();
+                            currentClues = [];
+                        } else if (/^\d+\|/.test(line)) {
+                            // Parse value|question|answer line
+                            const parts = line.split('|');
+                            if (parts.length >= 3) {
+                                currentClues.push({
+                                    value: parts[0].trim(),
+                                    question: parts[1].trim(),
+                                    answer: parts.slice(2).join('|').trim()
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Save last category
+                    if (currentCategory) {
+                        categories.push({
+                            name: currentCategory,
+                            clues: currentClues
+                        });
+                    }
+                    
+                    // If no teams were found in the file, add a default team
+                    if (teams.length === 0) {
+                        teams = [{ name: 'Team 1', score: 0 }];
+                    }
+                    
+                    // Apply the imported data to the form
+                    applyImportedDraftToForm(title, categories, teams);
+                    
+                } catch (error) {
+                    console.error('Error importing draft:', error);
+                    alert('Error importing draft file. Please check the file format.');
+                }
+            };
+            importReader.readAsText(file);
+            
+        } else {
+            // It's an incomplete game file, treat it as a loadable draft
+            const parsedTitle = parseTitleFromText(fileText);
+            const title = parsedTitle;
+            saveTitle(title);
+            saveBoardText(fileText);
+            
+            // Hide the create form if it's visible
+            document.getElementById('create-form').classList.add('hide');
+            
+            // Show team setup first
+            document.getElementById('file-teams-setup').classList.remove('hide');
+            
+            // Save the file text for later use when continuing to the game
+            window.uploadedFileText = fileText;
+        }
     };
     reader.readAsText(file);
+    
+    // Clear the file input
+    e.target.value = '';
+});
+
+// When a game file is uploaded, read it and handle appropriately
+document.getElementById('jeopardy-game-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        const fileText = evt.target.result;
+        const validation = validateGameFile(fileText);
+        
+        if (!validation.isValid) {
+            alert(validation.message);
+            e.target.value = ''; // Clear the file input
+            return;
+        }
+        
+        // Parse title from file if present
+        const parsedTitle = parseTitleFromText(fileText);
+        const title = parsedTitle;
+        saveTitle(title);
+        saveBoardText(fileText);
+        
+        // Hide the create form if it's visible
+        document.getElementById('create-form').classList.add('hide');
+        
+        // Show team setup first
+        document.getElementById('file-teams-setup').classList.remove('hide');
+        
+        // Save the file text for later use when continuing to the game
+        window.uploadedFileText = fileText;
+    };
+    reader.readAsText(file);
+    
+    // Clear the file input
+    e.target.value = '';
 });
 
 // Parse the uploaded text file and fill the board with categories, questions, and answers
@@ -598,8 +841,8 @@ showUploadBtn.addEventListener('click', function() {
         draftNotification.remove();
     }
     
-    // Programmatically click the file input to open file dialog
-    document.getElementById('jeopardy-upload').click();
+    // Programmatically click the draft file input to open file dialog
+    document.getElementById('jeopardy-draft-upload').click();
 });
 
 // Trigger the file dialog when Load Game File button is clicked
@@ -623,8 +866,8 @@ loadGameFileBtn.addEventListener('click', function() {
         draftNotification.remove();
     }
     
-    // Programmatically click the file input to open file dialog
-    document.getElementById('jeopardy-upload').click();
+    // Programmatically click the game file input to open file dialog
+    document.getElementById('jeopardy-game-upload').click();
 });
 
 // Show create form option
