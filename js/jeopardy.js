@@ -191,14 +191,14 @@ function validateDraftFile(fileContent) {
 function validateGameFile(fileContent) {
     const lines = fileContent.split(/\r?\n/);
     
+    // Check if it's marked as a draft first (before other format checks)
+    if (lines.some(line => line.trim() === '[JEOPARDY DRAFT]')) {
+        return { isValid: false, message: 'This appears to be a draft file. Please use the "Load Draft File" button instead.' };
+    }
+    
     // Game files should start with "Title:" and be complete
     if (!lines[0] || !lines[0].trim().toLowerCase().startsWith('title:')) {
         return { isValid: false, message: 'This does not appear to be a valid game file. Game files should start with "Title: [name]".' };
-    }
-    
-    // Check if it's marked as a draft
-    if (lines.some(line => line.trim() === '[JEOPARDY DRAFT]')) {
-        return { isValid: false, message: 'This appears to be a draft file. Please use the "Load Draft File" button instead.' };
     }
     
     // Count categories and questions to ensure completeness
