@@ -1,118 +1,84 @@
-# Jeopardy Game
+# Jeopardy Web App
 
-A web-based Jeopardy game for group presentations and interactive gameplay. Build custom game boards through a form  or upload existing text files for quick setup.
+🎯 **Create and play custom Jeopardy games right in your browser!**
 
-## Screenshots
-![Jeopardy Game Board](screenshots/game-board-loaded.png)
+Perfect for trivia nights, educational games, team building, or just having fun with friends. No downloads, no servers, no sign-ups required.
 
-*Main game board with categories and point values*
+![Game in Action](screenshots/game-board-loaded.png)
 
-![Question Modal](screenshots/game-board-question-modal.png)
+## Quick Start (3 Easy Steps)
 
-*Question and answer screen with team selection and scoring controls*
+### 1. Get the Game
+- Download or clone this repository
+- Open `jeopardy.html` in any modern web browser
+- That's it! No installation needed
 
-## Project Structure
+### 2. Create Your Game
+**Easy Mode**: Use our sample game
+- Click "Upload Existing Game Board"
+- Select the included `2000s-pop-culture.txt` file
+- Click "Load Game Board" and start playing!
 
-### Core Files
+**Custom Mode**: Make your own
+- Click "Create Board Manually"
+- Add your game title and team names
+- Fill in 5 categories with 5 questions each
+- Save or download your game when done
 
-- **`jeopardy.html`** - Main HTML structure with game board layout, scoring table, and modal elements
-- **`css/jeopardy.css`** - Stylesheet with responsive design for desktop and mobile devices
-- **`js/jeopardy.js`** - Game logic handling file uploads, board generation, team management, and persistent storage
+### 3. Play!
+- Click any dollar amount to reveal a question
+- Award points to teams for correct answers
+- Track scores automatically as you play
 
-### Sample Content
+![Question Screen](screenshots/game-board-question-modal.png)
 
-- **`2000s-pop-culture.txt`** - Example game file that can be uploaded to create a previously generated board
+## Features That Make It Great
 
-## Getting Started
+✅ **Works offline** - No internet required once loaded  
+✅ **Auto-saves progress** - Your game persists in the browser  
+✅ **Import/Export games** - Share with friends or backup your creations  
+✅ **Mobile friendly** - Play on phones, tablets, or computers  
+✅ **Multiple teams** - Perfect for group competitions  
 
-1. **Open the game**: Download the ZIP folder containing all files, and open `jeopardy.html` in a web browser
+## Tips for Success
 
-    ![Upload Screen](screenshots/homepage.png)
+💡 **Creating Questions**: Mix easy and hard questions within each category  
+💡 **Team Setup**: You can add or edit teams even during gameplay  
+💡 **Saving Work**: Always download your game file as backup  
+💡 **File Format**: Simple text format makes editing easy in any text editor  
 
-2. **Create or use a game board**:
-   
-   **Option A: Create a new board**
-   - Click "Create Board Manually" on the home screen
-   - Fill in the form with your game title, five categories, five questions/answers per category and teams
-     - Save a draft at anytime by clicking 'Save Draft' to store it in your browser's local storage, then return to it later by clicking 'Continue Editing' at the top of the page. You can also export your draft as a text file to save locally and continue working from any device, or import a previously saved draft file.
-   - When complete, click either:
-     - "Create Game Board" to generate your game, or
-     - "Create and Download" to also save a text file for future use
+## Need Help?
 
-    ![Game Board Creation](screenshots/game-board-manual-creation-draft-options.png)
+**Can't see your game board?** Make sure you clicked "Create Game Board" after filling out the form
 
-    ![Game Board Draft Banner](screenshots/game-board-manual-creation-draft-banner.png)
-    
-    ![Game Board Creation](screenshots/game-board-manual-creation-bottom.png)
+**Lost your work?** Check the browser's local storage - your draft might still be there
 
+**Want to edit a game?** Upload the text file and it will load into the creation form
 
-   **Option B: Use an existing board**
-   - Click "Upload Text File" and select your previously saved game file
-   - Add teams
-   - The board will be automatically created and displayed
+**Questions not displaying?** Ensure your text file follows the format shown in the sample file
 
-   ![Game Board Creation](screenshots/game-board-upload.png)
+## Sample Game File Format
 
-   
-
-3. **Play the game**: Click on values to reveal answers, show questions, and award points
-
-    ![Board Gameplay](screenshots/game-board-gameplay.png)
-
-## Exported Text File Breakdown
-
-1. **Title Line** (optional): `Title: Your Game Title`
-2. **Category Headers**: `Category: Category Name Here`
-3. **Questions**: `POINTS|CLUE|RESPONSE`
-   - Points: 100, 200, 300, 400, 500
-   - Clue: The statement shown to players first
-   - Response: The correct answer in question form
-4. **Five Categories**: Each with exactly 5 questions (100-500 points)
-5. **Blank Lines**: Ignored by the parser
-
-### Example
 ```
-Title: Early 2000s Pop Culture
+Game Title: 2000s Pop Culture
 
-Category: Blockbuster Movies
-100|The 2000 film that won Best Picture and starred Russell Crowe as a Roman general turned slave.|What is Gladiator?
-200|This fantasy trilogy began in 2001 and concluded in 2003 with The Return of the King.|What is The Lord of the Rings?
-300|James Cameron directed this 2009 sci-fi epic, which became the highest-grossing film of the decade.|What is Avatar?
-400|Heath Ledger posthumously won an Oscar for playing the Joker in this 2008 superhero film.|What is The Dark Knight?
-500|This 2002 thriller, directed by Doug Liman and based on a Robert Ludlum novel, launched a successful action franchise starring Matt Damon as a trained assassin suffering from amnesia.|What is The Bourne Identity?
+Category 1: Movies
+100: This 2001 film featured a computer-generated character named Shrek
+Answer: What is Shrek?
+
+Category 2: Music
+100: This pop star released the album "Oops!... I Did It Again" in 2000
+Answer: Who is Britney Spears?
 ```
 
-## Gameplay Features
+## What Makes This Special
 
-- **Team Scoring System**: Add multiple teams, track and edit scores in real-time
-- **Flexible Creation**: Build boards through forms or upload existing files
-- **Optional Download**: Save boards as text files for future games
-- **Persistent Storage**: Game state saves automatically between browser sessions
-- **Form Validation**: Real-time feedback ensures all required fields are completed
-- **Responsive Design**: Works on desktop and mobile devices
-
-## Data Persistence
-
-The game automatically saves:
-- Current game board content
-- Team names and scores  
-- Used/completed questions
-- Game title
-- Drafts for partially created game boards
-
-Data persists between browser sessions until manually reset by the `Reset Board` button or by clearing browser cache.
-
-
-## Technical Notes
-
-- **No server required**: Runs entirely in the browser
-- **Modern browsers**: Uses ES6+ JavaScript features
-- **File uploads**: Processes local text files with FileReader API
-- **Responsive**: CSS Grid and Flexbox for layout
-- **Modular**: Separated HTML/CSS/JS for maintainability
+- **Zero setup** - Just open and play
+- **Completely private** - Everything runs in your browser
+- **Highly customizable** - Make any topic, any difficulty
+- **Professional look** - Clean, TV-show-style interface
+- **Battle tested** - Used in classrooms, offices, and game nights
 
 ---
 
-Copyright (c) 2025 Eric Jones
-
-Licensed under the MIT License. See LICENSE.md for details.
+**Ready to play?** Open `jeopardy.html` and start creating your first game! 🎮
