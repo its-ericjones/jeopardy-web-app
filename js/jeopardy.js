@@ -353,11 +353,12 @@ document.getElementById('jeopardy-draft-upload').addEventListener('change', func
             saveTitle(title);
             saveBoardText(fileText);
             
-            // Hide the create form if it's visible
+            // Hide the create form if it's visible and show team setup
             document.getElementById('create-form').classList.add('hide');
-            
-            // Show team setup first
             document.getElementById('file-teams-setup').classList.remove('hide');
+            
+            // Keep stats table hidden until a game board is actually loaded
+            setStatsVisibility(false);
             
             // Save the file text for later use when continuing to the game
             window.uploadedFileText = fileText;
@@ -391,11 +392,12 @@ document.getElementById('jeopardy-game-upload').addEventListener('change', funct
         saveTitle(title);
         saveBoardText(fileText);
         
-        // Hide the create form if it's visible
+        // Hide the create form if it's visible and show team setup
         document.getElementById('create-form').classList.add('hide');
-        
-        // Show team setup first
         document.getElementById('file-teams-setup').classList.remove('hide');
+        
+        // Keep stats table hidden until a game board is actually loaded
+        setStatsVisibility(false);
         
         // Save the file text for later use when continuing to the game
         window.uploadedFileText = fileText;
@@ -822,15 +824,6 @@ const DEFAULT_QUESTIONS = Array(5).fill().map(() => ({ value: "", question: "", 
 
 // Trigger the file dialog when Load Draft File button is clicked
 showUploadBtn.addEventListener('click', function() {
-    // Hide the create form if it's visible
-    createFormDiv.classList.add('hide');
-    
-    // Hide the team setup until file is selected
-    document.getElementById('file-teams-setup').classList.add('hide');
-    
-    // Keep stats table hidden until a game board is actually loaded
-    setStatsVisibility(false);
-    
     // Initialize file teams for the team setup screen
     fileTeams = [];
     initializeFileTeams();
@@ -847,15 +840,6 @@ showUploadBtn.addEventListener('click', function() {
 
 // Trigger the file dialog when Load Game File button is clicked
 loadGameFileBtn.addEventListener('click', function() {
-    // Hide the create form if it's visible
-    createFormDiv.classList.add('hide');
-    
-    // Hide the team setup until file is selected
-    document.getElementById('file-teams-setup').classList.add('hide');
-    
-    // Keep stats table hidden until a game board is actually loaded
-    setStatsVisibility(false);
-    
     // Initialize file teams for the team setup screen
     fileTeams = [];
     initializeFileTeams();
