@@ -1,6 +1,6 @@
 # Jeopardy Web App
 
-An interactive web application for the game of Jeopardy. Build custom game boards through a form or upload existing text files for quick setup.
+An interactive web application for the game of Jeopardy that runs locally on your computer. Build custom game boards through a form or upload existing text files for quick setup.
 
 ## Gameplay Screenshots
 ![Jeopardy Game Board](screenshots/game-board-gameplay.png)
