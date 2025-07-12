@@ -17,7 +17,7 @@ An interactive web application for the game of Jeopardy. Build custom game board
     - Download the ZIP folder containing all files (green button at the top of this page)
     - Open `jeopardy.html` in a web browser (the default when double clicking any .html file)
 
-    ![Upload Screen](screenshots/main-page.png)
+    ![Main Screen](screenshots/main-page.png)
 
 2. **Create new game, upload a draft in progress, or use an existing game board**:
    
@@ -33,7 +33,7 @@ An interactive web application for the game of Jeopardy. Build custom game board
      - 'Create Game Board' to generate your game
      - 'Download Game File' to also save a copy for future use
 
-  ![Game Board Creation](screenshots/manual-game-complete-form.png)
+  ![Game Board Complete Form](screenshots/manual-game-complete-form.png)
 
    **Option B: Upload a draft in progress**
    - Click 'Upload Draft File' on the home screen to use a partially created game board file
@@ -47,7 +47,7 @@ An interactive web application for the game of Jeopardy. Build custom game board
 
   *To see a demo, upload the included `2000s-pop-culture.txt` file*
 
-  ![Game Board Creation](screenshots/loading-game-file.png)
+  ![Loading Game File](screenshots/loading-game-file.png)
 
 3. **Play the game**: Click on values to reveal answers, show questions, and award points
 
