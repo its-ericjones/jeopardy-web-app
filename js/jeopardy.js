@@ -1295,14 +1295,206 @@ generateBoardBtn.addEventListener('click', function() {
 
 // Generate jeopardy board from form data and download the file
 generateDownloadBtn.addEventListener('click', function() {
-    if (validateFormBeforeSubmission()) {
-        const boardData = createBoardFromForm(true);
-        if (boardData) {
-            // Download the generated board as a text file
-            downloadBoardFile(boardData.text, `${boardData.title.replace(/\s+/g, '-').toLowerCase()}.txt`);
+    const boardTitle = document.getElementById('board-title').value.trim();
+    
+    // Get form data regardless of completeness
+    const formData = gatherFormData();
+    
+    // Determine if form is complete or incomplete
+    const isComplete = isFormComplete(formData);
+    
+    if (isComplete) {
+        // Download as complete game file (without generating the board)
+        if (validateFormBeforeSubmission()) {
+            const boardText = createBoardTextFromForm();
+            if (boardText) {
+                const filename = boardTitle.replace(/\s+/g, '-').toLowerCase() + '.txt';
+                downloadBoardFile(boardText, filename);
+            }
         }
+    } else {
+        // Download as draft file
+        const draftContent = createDraftFromForm(formData);
+        const filename = boardTitle ? 
+            `${boardTitle.replace(/\s+/g, '-').toLowerCase()}-draft.txt` : 
+            'jeopardy-draft.txt';
+        downloadBoardFile(draftContent, filename);
     }
 });
+
+// Create board text without generating the visual board
+function createBoardTextFromForm() {
+    const boardTitle = document.getElementById('board-title').value.trim();
+    
+    // Validate board title
+    if (!boardTitle) {
+        alert("Please enter a game title.");
+        document.getElementById('board-title').focus();
+        return null;
+    }
+    
+    const categories = [];
+    const allQuestions = [];
+    let hasEmptyFields = false;
+    
+    // Check if we have exactly 5 categories
+    const categoryCount = document.querySelectorAll('.category-section').length;
+    if (categoryCount < 5) {
+        alert("Please create all 5 categories for a complete game board.");
+        return null;
+    }
+    
+    // Collect all category data
+    document.querySelectorAll('.category-section').forEach((catSection, catIndex) => {
+        if (catIndex >= 5) return; // Only use first 5 categories
+        
+        const categoryNameInput = catSection.querySelector('.category-name');
+        const categoryName = categoryNameInput.value.trim();
+        
+        // Validate category name
+        if (!categoryName) {
+            hasEmptyFields = true;
+            return;
+        }
+        
+        categories.push(categoryName);
+        
+        const categoryQuestions = [];
+        catSection.querySelectorAll('.question-item').forEach((qItem, qIndex) => {
+            const value = qItem.querySelector('.question-value').textContent;
+            const answerInput = qItem.querySelector('.question-answer');
+            const questionInput = qItem.querySelector('.question-question');
+            const answer = answerInput.value.trim();
+            const question = questionInput.value.trim();
+            
+            // Validate answer and question
+            if (!answer || !question) {
+                hasEmptyFields = true;
+                return;
+            }
+            
+            categoryQuestions.push({
+                value: value,
+                answer: answer,
+                question: question
+            });
+        });
+        
+        // Make sure this category has all 5 questions complete
+        if (categoryQuestions.length < 5) {
+            hasEmptyFields = true;
+        }
+        
+        allQuestions.push(categoryQuestions);
+    });
+    
+    // Check for empty fields
+    if (hasEmptyFields) {
+        alert("Cannot create complete game file: Some fields are empty. Use the form validation to see which fields need to be filled.");
+        return null;
+    }
+    
+    // Check that we have exactly 5 categories and all questions
+    if (categories.length !== 5 || allQuestions.some(categoryQ => categoryQ.length !== 5)) {
+        alert("Cannot create game board: Missing categories or questions");
+        return null;
+    }
+    
+    // All validation passed, generate text representation of board
+    let boardText = `Title: ${boardTitle}\n\n`;
+    
+    categories.forEach((category, catIndex) => {
+        boardText += `Category: ${category}\n`;
+        
+        allQuestions[catIndex].forEach(q => {
+            boardText += `${q.value}|${q.question}|${q.answer}\n`;
+        });
+        
+        boardText += '\n';
+    });
+    
+    return boardText;
+}
+
+// Helper function to gather all form data
+function gatherFormData() {
+    const boardTitle = document.getElementById('board-title').value.trim();
+    const categories = [];
+    
+    document.querySelectorAll('.category-section').forEach((catSection, catIndex) => {
+        const categoryNameInput = catSection.querySelector('.category-name');
+        const categoryName = categoryNameInput ? categoryNameInput.value.trim() : '';
+        const clues = [];
+        
+        catSection.querySelectorAll('.question-item').forEach((qItem) => {
+            const valueElement = qItem.querySelector('.question-value');
+            const answerInput = qItem.querySelector('.question-answer');
+            const questionInput = qItem.querySelector('.question-question');
+            
+            const value = valueElement ? valueElement.textContent : '';
+            const answer = answerInput ? answerInput.value.trim() : '';
+            const question = questionInput ? questionInput.value.trim() : '';
+            
+            clues.push({
+                value,
+                answer,
+                question
+            });
+        });
+        
+        categories.push({
+            name: categoryName,
+            clues: clues
+        });
+    });
+    
+    return {
+        title: boardTitle,
+        categories: categories,
+        teams: formTeams || []
+    };
+}
+
+// Helper function to check if form is complete
+function isFormComplete(formData) {
+    // Check if title exists
+    if (!formData.title) return false;
+    
+    // Check if we have 5 categories
+    if (formData.categories.length < 5) return false;
+    
+    // Check if all categories have names and 5 complete questions
+    for (let category of formData.categories) {
+        if (!category.name) return false;
+        
+        if (category.clues.length < 5) return false;
+        
+        for (let clue of category.clues) {
+            if (!clue.answer || !clue.question) return false;
+        }
+    }
+    
+    return true;
+}
+
+// Helper function to create draft file content
+function createDraftFromForm(formData) {
+    let draftContent = `[JEOPARDY DRAFT]\n`;
+    draftContent += `Title: ${formData.title}\n`;
+    draftContent += `Created: ${new Date().toISOString()}\n`;
+    draftContent += `Teams: ${formData.teams.map(t => t.name).join(', ')}\n\n`;
+    
+    // Add categories and clues
+    formData.categories.forEach((category) => {
+        draftContent += `Category: ${category.name}\n`;
+        category.clues.forEach(clue => {
+            draftContent += `${clue.value}|${clue.question}|${clue.answer}\n`;
+        });
+        draftContent += '\n';
+    });
+    
+    return draftContent;
+}
 
 // Download generated board as a text file
 function downloadBoardFile(content, filename) {
