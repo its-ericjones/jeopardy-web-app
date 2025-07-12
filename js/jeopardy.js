@@ -244,12 +244,12 @@ document.getElementById('jeopardy-draft-upload').addEventListener('change', func
     if (!file) return;
     
     const reader = new FileReader();
-    reader.onload = function(evt) {
+    reader.onload = async function(evt) {
         const fileText = evt.target.result;
         const validation = validateDraftFile(fileText);
         
         if (!validation.isValid) {
-            alert(validation.message);
+            CustomDialog.error(validation.message);
             e.target.value = ''; // Clear the file input
             return;
         }
@@ -413,16 +413,16 @@ document.getElementById('jeopardy-draft-upload').addEventListener('change', func
                         // Save as localStorage draft
                         saveFormDraft();
                         
-                        alert('Draft imported successfully!');
+                        CustomDialog.success('Draft imported successfully!');
                         
                     } catch (error) {
                         console.error('Error applying imported draft:', error);
-                        alert('Error applying imported draft to form.');
+                        CustomDialog.error('Error applying imported draft to form.');
                     }
                     
                 } catch (error) {
                     console.error('Error importing draft:', error);
-                    alert('Error importing draft file. Please check the file format.');
+                    CustomDialog.error('Error importing draft file. Please check the file format.');
                 }
             };
             importReader.readAsText(file);
@@ -462,7 +462,7 @@ document.getElementById('jeopardy-game-upload').addEventListener('change', funct
         const validation = validateGameFile(fileText);
         
         if (!validation.isValid) {
-            alert(validation.message);
+            CustomDialog.alert(validation.message);
             e.target.value = ''; // Clear the file input
             return;
         }
@@ -849,7 +849,7 @@ function renderFileTeams() {
 document.getElementById('file-teams-continue').addEventListener('click', function() {
     // Make sure there's at least one team
     if (fileTeams.length === 0) {
-        alert('Please add at least one team before continuing.');
+        CustomDialog.error('Please add at least one team before continuing.');
         return;
     }
     
@@ -957,27 +957,27 @@ showCreateFormBtn.addEventListener('click', function() {
         
         if (savedDraft) {
             // Ask user if they want to restore their draft
-            const restoreDraft = confirm('We found a saved draft of your game board. Would you like to restore it?');
-            
-            if (restoreDraft) {
-                // Initialize a clean form first to ensure proper structure
-                reinitializeForm();
-                
-                // Then try to load the draft data
-                if (!loadFormDraft()) {
-                    // If loading failed, we already have a clean form from reinitializeForm
-                    console.error("Failed to load draft, using clean form instead");
-                    alert("There was an issue loading your draft. Starting with a fresh form.");
-                    discardFormDraft(); // Clear the problematic draft
+            CustomDialog.confirm('We found a saved draft of your game board. Would you like to restore it?', 'Restore Draft?').then(restoreDraft => {
+                if (restoreDraft) {
+                    // Initialize a clean form first to ensure proper structure
+                    reinitializeForm();
+                    
+                    // Then try to load the draft data
+                    if (!loadFormDraft()) {
+                        // If loading failed, we already have a clean form from reinitializeForm
+                        console.error("Failed to load draft, using clean form instead");
+                        CustomDialog.error("There was an issue loading your draft. Starting with a fresh form.");
+                        discardFormDraft(); // Clear the problematic draft
+                    }
+                } else {
+                    // User doesn't want to restore, proceed with a new form
+                    // Clear the draft from storage
+                    discardFormDraft();
+                    
+                    // Create a fresh form
+                    reinitializeForm();
                 }
-            } else {
-                // User doesn't want to restore, proceed with a new form
-                // Clear the draft from storage
-                discardFormDraft();
-                
-                // Create a fresh form
-                reinitializeForm();
-            }
+            });
         } else {
             // No draft found, set up a new form
             reinitializeForm();
@@ -1092,7 +1092,7 @@ function createBoardFromForm(shouldDownload) {
     
     // Validate board title
     if (!boardTitle) {
-        alert("Please enter a game title.");
+        CustomDialog.alert("Please enter a game title.");
         document.getElementById('board-title').focus();
         return null;
     }
@@ -1105,7 +1105,7 @@ function createBoardFromForm(shouldDownload) {
     // Check if we have exactly 5 categories
     const categoryCount = document.querySelectorAll('.category-section').length;
     if (categoryCount < 5) {
-        alert("Please create all 5 categories for a complete game board.");
+        CustomDialog.alert("Please create all 5 categories for a complete game board.");
         return null;
     }
     
@@ -1193,7 +1193,7 @@ function createBoardFromForm(shouldDownload) {
     
     // Check that we have exactly 5 categories and all questions
     if (categories.length !== 5 || allQuestions.some(categoryQ => categoryQ.length !== 5)) {
-        alert("Cannot create game board: Missing categories or questions");
+        CustomDialog.alert("Cannot create game board: Missing categories or questions");
         return null;
     }
     
@@ -1328,7 +1328,7 @@ function createBoardTextFromForm() {
     
     // Validate board title
     if (!boardTitle) {
-        alert("Please enter a game title.");
+        CustomDialog.alert("Please enter a game title.");
         document.getElementById('board-title').focus();
         return null;
     }
@@ -1340,7 +1340,7 @@ function createBoardTextFromForm() {
     // Check if we have exactly 5 categories
     const categoryCount = document.querySelectorAll('.category-section').length;
     if (categoryCount < 5) {
-        alert("Please create all 5 categories for a complete game board.");
+        CustomDialog.alert("Please create all 5 categories for a complete game board.");
         return null;
     }
     
@@ -1390,13 +1390,13 @@ function createBoardTextFromForm() {
     
     // Check for empty fields
     if (hasEmptyFields) {
-        alert("Cannot create complete game file: Some fields are empty. Use the form validation to see which fields need to be filled.");
+        CustomDialog.alert("Cannot create complete game file: Some fields are empty. Use the form validation to see which fields need to be filled.");
         return null;
     }
     
     // Check that we have exactly 5 categories and all questions
     if (categories.length !== 5 || allQuestions.some(categoryQ => categoryQ.length !== 5)) {
-        alert("Cannot create game board: Missing categories or questions");
+        CustomDialog.alert("Cannot create game board: Missing categories or questions");
         return null;
     }
     
@@ -1432,8 +1432,8 @@ function gatherFormData() {
             const questionInput = qItem.querySelector('.question-question');
             
             const value = valueElement ? valueElement.textContent : '';
-            const answer = answerInput ? answerInput.value.trim() : '';
-            const question = questionInput ? questionInput.value.trim() : '';
+            const answer = answerInput ? answerInput.value : '';
+            const question = questionInput ? questionInput.value : '';
             
             clues.push({
                 value,
@@ -1637,7 +1637,7 @@ function saveFormDraft() {
         }
         
         // Gather all category data
-        document.querySelectorAll('.category-section').forEach((catSection, catIndex) => {
+        document.querySelectorAll('.category-section').forEach((catSection) => {
             const categoryNameInput = catSection.querySelector('.category-name');
             const categoryName = categoryNameInput ? categoryNameInput.value : '';
             const clues = [];
@@ -1924,14 +1924,19 @@ function setupDraftEventListeners() {
         discardDraftBtn.parentNode.replaceChild(newDiscardBtn, discardDraftBtn);
         
         // Add a single event listener to the new button
-        newDiscardBtn.addEventListener('click', function() {
-            const confirmed = confirm('Are you sure you want to discard this draft? This cannot be undone.');
+        newDiscardBtn.addEventListener('click', async function() {
+            const confirmed = await CustomDialog.confirm(
+                'Are you sure you want to discard this draft? This cannot be undone.',
+                'Discard Draft?'
+            );
+            
             if (confirmed) {
                 discardFormDraft();
                 // Reset the form
                 document.getElementById('board-title').value = '';
                 document.getElementById('board-title').classList.remove('has-content');
                 
+                const categoriesContainer = document.getElementById('categories-container');
                 categoriesContainer.innerHTML = '';
                 for (let i = 0; i < 5; i++) {
                     addCategory();
@@ -1939,7 +1944,8 @@ function setupDraftEventListeners() {
                 formTeams = [];
                 addFormTeam();
                 renderFormTeams();
-                alert('Draft discarded.');
+                
+                await CustomDialog.success('Draft discarded successfully.');
             }
         });
     }
@@ -1999,6 +2005,288 @@ function debugFormStructure() {
     });
 }
 
-// --- Draft File Import/Export Functionality ---
-// Import functionality removed - use main "Load Draft File" button instead
+// Custom confirmation dialog for discarding drafts
+function showDiscardConfirmation() {
+    // Create confirmation modal
+    const confirmModal = document.createElement('div');
+    confirmModal.id = 'discard-confirm-modal';
+    confirmModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    `;
+    
+    const confirmDialog = document.createElement('div');
+    confirmDialog.style.cssText = `
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        text-align: center;
+        font-family: inherit;
+    `;
+    
+    confirmDialog.innerHTML = `
+        <h3 style="margin-top: 0; color: #333; font-size: 1.2em;">Discard Draft?</h3>
+        <p style="color: #666; margin: 15px 0 25px; line-height: 1.4;">Are you sure you want to discard this draft? This cannot be undone.</p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="confirm-discard" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 500;">Discard Draft</button>
+            <button id="cancel-discard" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 500;">Cancel</button>
+        </div>
+    `;
+    
+    confirmModal.appendChild(confirmDialog);
+    document.body.appendChild(confirmModal);
+    
+    // Handle confirm button
+    document.getElementById('confirm-discard').addEventListener('click', function() {
+        discardFormDraft();
+        // Reset the form
+        document.getElementById('board-title').value = '';
+        document.getElementById('board-title').classList.remove('has-content');
+        
+        const categoriesContainer = document.getElementById('categories-container');
+        categoriesContainer.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+            addCategory();
+        }
+        formTeams = [];
+        addFormTeam();
+        renderFormTeams();
+        
+        // Remove modal
+        document.body.removeChild(confirmModal);
+        
+        // Show success message
+        showSuccessMessage('Draft discarded successfully.');
+    });
+    
+    // Handle cancel button
+    document.getElementById('cancel-discard').addEventListener('click', function() {
+        document.body.removeChild(confirmModal);
+    });
+    
+    // Handle clicking outside the modal
+    confirmModal.addEventListener('click', function(e) {
+        if (e.target === confirmModal) {
+            document.body.removeChild(confirmModal);
+        }
+    });
+    
+    // Handle escape key
+    const handleEscape = function(e) {
+        if (e.key === 'Escape') {
+            document.body.removeChild(confirmModal);
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+// Universal Custom Dialog System
+const CustomDialog = {
+    // Show alert dialog
+    alert: function(message, title = 'Error') {
+        return new Promise((resolve) => {
+            this.createModal({
+                title: title,
+                message: message,
+                buttons: [
+                    { text: 'OK', style: 'primary', action: resolve }
+                ]
+            });
+        });
+    },
+    
+    // Show confirm dialog
+    confirm: function(message, title = 'Confirm') {
+        return new Promise((resolve) => {
+            this.createModal({
+                title: title,
+                message: message,
+                buttons: [
+                    { text: 'Cancel', style: 'secondary', action: () => resolve(false) },
+                    { text: 'OK', style: 'primary', action: () => resolve(true) }
+                ]
+            });
+        });
+    },
+    
+    // Show success message
+    success: function(message, title = 'Success') {
+        return new Promise((resolve) => {
+            this.createModal({
+                title: title,
+                message: message,
+                type: 'success',
+                buttons: [
+                    { text: 'OK', style: 'success', action: resolve }
+                ]
+            });
+        });
+    },
+    
+    // Show error message
+    error: function(message, title = 'Error') {
+        return new Promise((resolve) => {
+            this.createModal({
+                title: title,
+                message: message,
+                buttons: [
+                    { text: 'OK', style: 'primary', action: resolve }
+                ]
+            });
+        });
+    },
+    
+    // Create the modal structure
+    createModal: function(options) {
+        // Remove any existing modals
+        const existingModal = document.getElementById('custom-dialog-modal');
+        if (existingModal) {
+            document.body.removeChild(existingModal);
+        }
+        
+        const modal = document.createElement('div');
+        modal.id = 'custom-dialog-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.2s ease-out;
+        `;
+        
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            min-width: 320px;
+            text-align: center;
+            font-family: inherit;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        // Add icon based on type
+        let iconHtml = '';
+        if (options.type === 'success') {
+            iconHtml = '<div style="font-size: 48px; color: #28a745; margin-bottom: 15px;">✓</div>';
+        } else if (options.type === 'error') {
+            iconHtml = '<div style="font-size: 48px; color: #dc3545; margin-bottom: 15px;">✕</div>';
+        }
+        
+        dialog.innerHTML = `
+            ${iconHtml}
+            <h3 style="margin-top: 0; color: #333; font-size: 1.3em; margin-bottom: 15px;">${options.title}</h3>
+            <p style="color: #666; margin: 15px 0 25px; line-height: 1.5; font-size: 1em;">${options.message}</p>
+            <div id="dialog-buttons" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;"></div>
+        `;
+        
+        modal.appendChild(dialog);
+        document.body.appendChild(modal);
+        
+        // Add buttons
+        const buttonContainer = document.getElementById('dialog-buttons');
+        options.buttons.forEach((button, index) => {
+            const btn = document.createElement('button');
+            btn.textContent = button.text;
+            
+            let buttonStyle = '';
+            switch (button.style) {
+                case 'primary':
+                    buttonStyle = 'background: #007bff; color: white;';
+                    break;
+                case 'secondary':
+                    buttonStyle = 'background: #6c757d; color: white;';
+                    break;
+                case 'success':
+                    buttonStyle = 'background: #28a745; color: white;';
+                    break;
+                case 'error':
+                    buttonStyle = 'background: #dc3545; color: white;';
+                    break;
+                default:
+                    buttonStyle = 'background: #f8f9fa; color: #333; border: 1px solid #dee2e6;';
+            }
+            
+            btn.style.cssText = `
+                ${buttonStyle}
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 500;
+                font-size: 14px;
+                min-width: 80px;
+                transition: opacity 0.2s;
+            `;
+            
+            btn.addEventListener('mouseover', () => btn.style.opacity = '0.8');
+            btn.addEventListener('mouseout', () => btn.style.opacity = '1');
+            
+            btn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                button.action();
+            });
+            
+            buttonContainer.appendChild(btn);
+            
+            // Focus the first button
+            if (index === options.buttons.length - 1) {
+                setTimeout(() => btn.focus(), 100);
+            }
+        });
+        
+        // Handle escape key
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                document.body.removeChild(modal);
+                // Call the last button's action (usually cancel/ok)
+                options.buttons[options.buttons.length - 1].action();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        
+        // Add CSS animations
+        if (!document.getElementById('dialog-animations')) {
+            const style = document.createElement('style');
+            style.id = 'dialog-animations';
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideIn {
+                    from {
+                        transform: translateY(-20px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+};
 
