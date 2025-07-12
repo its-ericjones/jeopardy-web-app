@@ -1,15 +1,13 @@
 # Jeopardy Web App
 
-🎯 **Create and play custom Jeopardy games right in your browser!**
+**Create and play custom Jeopardy games right in your browser.**
 
-Perfect for trivia nights, educational games, team building, or just having fun with friends. No downloads, no servers, no sign-ups required.
-
-![Game in Action](screenshots/game-board-loaded.png)
+![Game in Action](screenshots/game-board-gameplay.png)
 
 ## Quick Start (3 Easy Steps)
 
 ### 1. Get the Game
-- Download or clone this repository
+- Download a .ZIP file of this repository (green button at the top of the page)
 - Open `jeopardy.html` in any modern web browser
 - That's it! No installation needed
 
