@@ -4,7 +4,7 @@
 
 ![Game in Action](screenshots/game-board-gameplay.png)
 
-## Quick Start (3 Easy Steps)
+## Quick Start
 
 ### 1. Get the Game
 - Download a .ZIP file of this repository (green button at the top of the page)
