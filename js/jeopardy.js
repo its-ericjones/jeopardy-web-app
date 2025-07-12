@@ -1288,10 +1288,34 @@ function validateFormBeforeSubmission() {
 
 // Generate jeopardy board from form data (without download)
 generateBoardBtn.addEventListener('click', function() {
+    // Validate form first, then show confirmation modal
     if (validateFormBeforeSubmission()) {
-        createBoardFromForm(false);
+        showConfirmationModal();
     }
 });
+
+// Confirmation modal functionality
+function showConfirmationModal() {
+    const modal = document.getElementById('confirmation-modal');
+    modal.style.display = 'flex';
+    
+    // Set up event listeners for the modal buttons
+    document.getElementById('confirm-create-board').onclick = function() {
+        modal.style.display = 'none';
+        createBoardFromForm(false);
+    };
+    
+    document.getElementById('cancel-create-board').onclick = function() {
+        modal.style.display = 'none';
+    };
+    
+    // Allow clicking outside the modal to close it (clicking on the modal background)
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
 
 // Generate jeopardy board from form data and download the file
 generateDownloadBtn.addEventListener('click', function() {
