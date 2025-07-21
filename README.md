@@ -12,10 +12,13 @@ An interactive web application for the game of Jeopardy that runs locally on you
 *Question and answer screen with team selection and scoring controls*
 
 ## Getting Started
+1. **Open the game**: 
+    - Download the ZIP folder containing all files (green button at the top of this page)
+    - Open `jeopardy.html` in a web browser (the default when double clicking any .html file)
 
 ![Main Screen](screenshots/updated-main-page.png)
 
-1. **Create new game, upload a draft in progress, or use an existing game board**:
+2. **Create new game, upload a draft in progress, or use an existing game board**:
    
    **Option A: Create new game**
    - Click 'Create' on the home screen
@@ -44,7 +47,7 @@ An interactive web application for the game of Jeopardy that runs locally on you
 
   ![Loading Game File](screenshots/updated-loading-game-file.png)
 
-2. **Play the game**: Click on values to reveal answers, show questions, and award points
+3. **Play the game**: Click on values to reveal answers, show questions, and award points
 
 ![Jeopardy Game Board](screenshots/game-board-gameplay.png)
 
