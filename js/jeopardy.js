@@ -176,11 +176,12 @@ function validateDraftFile(fileContent) {
             hasIncompleteCategory = true;
         }
         
-        // If it has fewer than 5 categories or incomplete categories, it's a draft
+        // Whether complete or incomplete, we'll allow it as a draft
         if (categoryCount < 5 || hasIncompleteCategory) {
             return { isValid: true, type: 'draft' };
         } else {
-            return { isValid: false, type: 'complete', message: 'This appears to be a complete game file. Please use the "Load Game File" button instead.' };
+            // Complete games are now allowed as drafts
+            return { isValid: true, type: 'draft' };
         }
     }
     
@@ -193,7 +194,7 @@ function validateGameFile(fileContent) {
     
     // Check if it's marked as a draft first (before other format checks)
     if (lines.some(line => line.trim() === '[JEOPARDY DRAFT]')) {
-        return { isValid: false, message: 'This appears to be a draft file. Please use the "Load Draft File" button instead.' };
+        return { isValid: false, message: 'This appears to be a draft file. Please use the "Edit" button instead.' };
     }
     
     // Game files should start with "Title:" and be complete
@@ -228,11 +229,11 @@ function validateGameFile(fileContent) {
     }
     
     if (categoryCount < 5) {
-        return { isValid: false, message: 'This game file is incomplete. It should have 5 categories with 5 questions each. Please use the "Load Draft File" button instead.' };
+        return { isValid: false, message: 'This game file is incomplete. It should have 5 categories with 5 questions each. Please use the "Edit" button instead.' };
     }
     
     if (hasIncompleteCategory) {
-        return { isValid: false, message: 'This game file has incomplete categories (missing questions/answers). Please use the "Load Draft File" button instead.' };
+        return { isValid: false, message: 'This game file has incomplete categories (missing questions/answers). Please use the "Edit" button instead.' };
     }
     
     return { isValid: true, type: 'complete' };
@@ -428,21 +429,160 @@ document.getElementById('jeopardy-draft-upload').addEventListener('change', func
             importReader.readAsText(file);
             
         } else {
-            // It's an incomplete game file, treat it as a loadable draft
+            // For any game file (complete or incomplete), open it in the form for editing
             const parsedTitle = parseTitleFromText(fileText);
             const title = parsedTitle;
-            saveTitle(title);
-            saveBoardText(fileText);
             
-            // Hide the create form if it's visible and show team setup
-            document.getElementById('create-form').classList.add('hide');
-            document.getElementById('file-teams-setup').classList.remove('hide');
+            // Show the create form and hide team setup
+            document.getElementById('create-form').classList.remove('hide');
+            document.getElementById('file-teams-setup').classList.add('hide');
             
-            // Keep stats table hidden until a game board is actually loaded
-            setStatsVisibility(false);
+            // Initialize the form first
+            reinitializeForm();
             
-            // Save the file text for later use when continuing to the game
-            window.uploadedFileText = fileText;
+            // Create a mock file object for import
+            const mockFile = {
+                name: file.name,
+                size: file.size
+            };
+            
+            // Create a new reader for parsing the game content
+            const importReader = new FileReader();
+            importReader.onload = function(importEvt) {
+                try {
+                    const fileContent = importEvt.target.result;
+                    
+                    // Parse the game file content
+                    const lines = fileContent.split(/\r?\n/);
+                    let title = '';
+                    let teams = [];
+                    let categories = [];
+                    let currentCategory = null;
+                    let currentClues = [];
+                    
+                    for (let line of lines) {
+                        line = line.trim();
+                        if (!line) continue;
+                        
+                        if (line.toLowerCase().startsWith('title:')) {
+                            title = line.substring(6).trim();
+                        } else if (line.toLowerCase().startsWith('category:')) {
+                            // Save previous category if it exists
+                            if (currentCategory) {
+                                categories.push({
+                                    name: currentCategory,
+                                    clues: currentClues
+                                });
+                            }
+                            currentCategory = line.substring(9).trim();
+                            currentClues = [];
+                        } else if (/^\d+\|/.test(line)) {
+                            // Parse value|question|answer line
+                            const parts = line.split('|');
+                            if (parts.length >= 3) {
+                                currentClues.push({
+                                    value: parts[0].trim(),
+                                    question: parts[1].trim(),
+                                    answer: parts.slice(2).join('|').trim()
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Save last category
+                    if (currentCategory) {
+                        categories.push({
+                            name: currentCategory,
+                            clues: currentClues
+                        });
+                    }
+                    
+                    // Apply the imported data to the form
+                    try {
+                        // Set title
+                        const titleInput = document.getElementById('board-title');
+                        if (titleInput) {
+                            titleInput.value = title || '';
+                            if (title) {
+                                titleInput.classList.add('has-content');
+                            } else {
+                                titleInput.classList.remove('has-content');
+                            }
+                        }
+                        
+                        // Clear and rebuild form
+                        const categoriesContainer = document.getElementById('categories-container');
+                        categoriesContainer.innerHTML = '';
+                        
+                        // Create 5 categories (pad with empty ones if needed)
+                        for (let i = 0; i < 5; i++) {
+                            addCategory();
+                        }
+                        
+                        // Populate categories with imported data
+                        const categorySections = document.querySelectorAll('.category-section');
+                        categories.forEach((category, index) => {
+                            if (index >= 5) return; // Only handle first 5 categories
+                            
+                            const catSection = categorySections[index];
+                            if (!catSection) return;
+                            
+                            // Set category name
+                            const catNameInput = catSection.querySelector('.category-name');
+                            if (catNameInput) {
+                                catNameInput.value = category.name || '';
+                                if (category.name) {
+                                    catNameInput.classList.add('has-content');
+                                } else {
+                                    catNameInput.classList.remove('has-content');
+                                }
+                            }
+                            
+                            // Set questions/answers for this category
+                            const questionItems = catSection.querySelectorAll('.question-item');
+                            category.clues.forEach((clue, qIndex) => {
+                                if (qIndex >= 5) return; // Only handle first 5 questions
+                                
+                                const qItem = questionItems[qIndex];
+                                const questionInput = qItem.querySelector('.question-question');
+                                const answerInput = qItem.querySelector('.question-answer');
+                                
+                                if (questionInput) {
+                                    questionInput.value = clue.question || '';
+                                    if (clue.question) {
+                                        questionInput.classList.add('has-content');
+                                    } else {
+                                        questionInput.classList.remove('has-content');
+                                    }
+                                }
+                                
+                                if (answerInput) {
+                                    answerInput.value = clue.answer || '';
+                                    if (clue.answer) {
+                                        answerInput.classList.add('has-content');
+                                    } else {
+                                        answerInput.classList.remove('has-content');
+                                    }
+                                }
+                            });
+                        });
+                        
+                        // Save as localStorage draft
+                        saveFormDraft();
+                        
+                        CustomDialog.success('Game file imported for editing!');
+                        
+                    } catch (error) {
+                        console.error('Error applying game file to form:', error);
+                        CustomDialog.error('Error applying game file to form.');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error importing game file:', error);
+                    CustomDialog.error('Error importing game file. Please check the file format.');
+                }
+            };
+            importReader.readAsText(file);
         }
     };
     reader.readAsText(file);
