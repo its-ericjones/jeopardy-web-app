@@ -1457,32 +1457,27 @@ function showConfirmationModal() {
     };
 }
 
-// Generate jeopardy board from form data and download the file
+// Save form data as either a game file or draft file
 generateDownloadBtn.addEventListener('click', function() {
     const boardTitle = document.getElementById('board-title').value.trim();
-    
-    // Get form data regardless of completeness
     const formData = gatherFormData();
-    
-    // Determine if form is complete or incomplete
     const isComplete = isFormComplete(formData);
+    const defaultName = boardTitle.replace(/\s+/g, '-').toLowerCase() || 'jeopardy';
     
-    if (isComplete) {
-        // Download as complete game file (without generating the board)
-        if (validateFormBeforeSubmission()) {
-            const boardText = createBoardTextFromForm();
-            if (boardText) {
-                const filename = boardTitle.replace(/\s+/g, '-').toLowerCase() + '.txt';
-                downloadBoardFile(boardText, filename);
-            }
-        }
+    let content, filename;
+    
+    if (isComplete && validateFormBeforeSubmission()) {
+        // Save as complete game file
+        content = createBoardTextFromForm();
+        filename = `${defaultName}.txt`;
     } else {
-        // Download as draft file
-        const draftContent = createDraftFromForm(formData);
-        const filename = boardTitle ? 
-            `${boardTitle.replace(/\s+/g, '-').toLowerCase()}-draft.txt` : 
-            'jeopardy-draft.txt';
-        downloadBoardFile(draftContent, filename);
+        // Save as draft file
+        content = createDraftFromForm(formData);
+        filename = `${defaultName}-draft.txt`;
+    }
+    
+    if (content) {
+        downloadBoardFile(content, filename);
     }
 });
 
