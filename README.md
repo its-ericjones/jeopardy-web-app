@@ -13,43 +13,38 @@ An interactive web application for the game of Jeopardy that runs locally on you
 
 ## Getting Started
 
-1. **Open the game**: 
-    - Download the ZIP folder containing all files (green button at the top of this page)
-    - Open `jeopardy.html` in a web browser (the default when double clicking any .html file)
+![Main Screen](screenshots/updated-main-page.png)
 
-    ![Main Screen](screenshots/main-page.png)
-
-2. **Create new game, upload a draft in progress, or use an existing game board**:
+1. **Create new game, upload a draft in progress, or use an existing game board**:
    
    **Option A: Create new game**
-   - Click 'Create Board Manually' on the home screen
+   - Click 'Create' on the home screen
    - Fill in the form with your game title, five categories, five questions/answers per category and teams
-   - Save a draft at anytime by clicking 'Save Draft' to store it in your browser's storage - this allows you to resume where you left off if the page is accidentally closed
 
-  ![Game Board Creation](screenshots/manual-game-creation.png)
 
-   - If you're done editing for an extended period, click 'Download Game File' to save a backup to resume where you left off later
+  ![Game Board Creation](screenshots/updated-manual-game-creation.png)
+
    - When complete, click either:
-     - 'Create Game Board' to generate your game
-     - 'Download Game File' to also save a copy for future use
+     - 'Create' to generate your game
+     - 'Save' to save a copy for future use
 
-  ![Game Board Complete Form](screenshots/manual-game-complete-form.png)
+  ![Game Board Complete Form](screenshots/updated-game-complete-form.png)
 
-   **Option B: Upload a draft in progress**
-   - Click 'Upload Draft File' on the home screen to use a partially created game board file
+   **Option B: Upload a draft or game file to edit**
+   - Click 'Edit' on the home screen to either edit a draft file or game file.
 
-  ![Draft File Upload](screenshots/import-draft-file.png) 
+  ![Draft File Upload](screenshots/updated-import-draft-file.png) 
     
-   **Option C: Use an existing game board**
-   - Click 'Upload Text File' and select your previously saved game file
+   **Option C: Play using an existing game file**
+   - Click 'Play' and select your previously saved game file
    - Add teams
    - Click 'Continue to Game' and the board will be automatically created and displayed
 
   *To see a demo, upload the included `2000s-pop-culture.txt` file*
 
-  ![Loading Game File](screenshots/loading-game-file.png)
+  ![Loading Game File](screenshots/updated-loading-game-file.png)
 
-3. **Play the game**: Click on values to reveal answers, show questions, and award points
+2. **Play the game**: Click on values to reveal answers, show questions, and award points
 
 ![Jeopardy Game Board](screenshots/game-board-gameplay.png)
 
@@ -57,7 +52,7 @@ An interactive web application for the game of Jeopardy that runs locally on you
 
 - **Team Scoring System**: Add multiple teams, track and edit scores in real-time (score editing is automatically mapped to previous cell points)
 - **Flexible Creation**: Build boards through forms or upload existing files
-- **Optional Download**: Save boards as text files for future games
+- **Save Created Games**: Save boards as text files for future games
 - **Persistent Storage**: Game state saves automatically between browser sessions
 - **Form Validation**: Form validation ensures all required fields are completed before the game board can be created
 
