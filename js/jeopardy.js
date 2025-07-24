@@ -938,6 +938,7 @@ document.getElementById('reset-board').onclick = function() {
     
     // Remove the title from localStorage so it doesn't reappear after reload
     localStorage.removeItem('jeopardyTitle');
+    localStorage.removeItem('jeopardyFormDraft');  // Clear any saved draft
     document.getElementById('title').style.display = 'none';
     clearAllStorage();
     
@@ -1384,6 +1385,12 @@ function createBoardFromForm(shouldDownload) {
     }
     titleElem.style.display = 'block';
     
+    // Scroll to the top of the page
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+
     // Return the board text and title for potential download
     return {
         text: boardText,
