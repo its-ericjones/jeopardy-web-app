@@ -1086,6 +1086,16 @@ showCreateFormBtn.addEventListener('click', function() {
     // Hide stats table when form is shown
     setStatsVisibility(false);
     
+    // Add input listener to title field for auto-saving
+    const titleField = document.getElementById('board-title');
+    if (titleField) {
+        titleField.addEventListener('input', function() {
+            // Save form state to draft
+            const formData = gatherFormData();
+            storage.save('jeopardyFormDraft', formData);
+        });
+    }
+    
     // Remove the draft notification banner if it exists
     const draftNotification = document.getElementById('draft-notification');
     if (draftNotification) {
@@ -1222,6 +1232,13 @@ function addCategory() {
             field.classList.remove('has-content');
             // Don't add validation-error on initial creation
         }
+        
+        // Add input listener to save draft on changes
+        field.addEventListener('input', function() {
+            // Save form state to draft
+            const formData = gatherFormData();
+            storage.save('jeopardyFormDraft', formData);
+        });
     });
 }
 
