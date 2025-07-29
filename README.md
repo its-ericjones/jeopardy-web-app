@@ -34,7 +34,7 @@ An interactive web application for the game of Jeopardy that runs locally on you
   ![Game Board Complete Form](screenshots/updated-game-complete-form.png)
 
    **Option B: Upload a draft or game file to edit**
-   - Click 'Edit' on the home screen to either edit a draft file or game file.
+   - Click 'Edit' on the home screen to either upload and edit a draft file or game file.
 
   ![Draft File Upload](screenshots/updated-import-draft-file.png) 
     
