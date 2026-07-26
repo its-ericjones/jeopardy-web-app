@@ -1,93 +1,121 @@
 # Jeopardy Web App
 
-An interactive web application for the game of Jeopardy that runs locally on your computer. Build custom game boards through a form or upload existing text files for quick setup.
+An interactive Jeopardy-style game board that runs locally in the browser. Build custom games through a form, export editable drafts, save complete game files, and print or export a facilitator answer key.
 
-## Gameplay Screenshots
-![Jeopardy Game Board](screenshots/game-board-gameplay.png)
+## Screenshots
+
+![Jeopardy Game Board](screenshots/jeopardy-game-board.png)
 
 *Main game board with categories and point values*
 
-![Question Modal](screenshots/game-board-question-modal.png)
+![Question Modal](screenshots/jeopardy-clue-modal.png)
 
 *Question and answer screen with team selection and scoring controls*
 
-## Getting Started
-1. **Open the game**: 
-    - Download the ZIP folder containing all files (green button at the top of this page)
-    - Open `jeopardy.html` in a web browser (the default when double clicking any .html file)
+## Quick Start
 
-![Main Screen](screenshots/updated-main-page.png)
+1. Download or clone the project folder.
+2. Open `jeopardy.html` in a modern browser.
+3. Choose one of the starting options:
+   - `Create`: build a new game from scratch.
+   - `Edit`: open a draft or game file for editing.
+   - `Play`: open a complete game file and start playing.
 
-2. **Create new game, upload a draft in progress, or use an existing game board**:
-   
-   **Option A: Create new game**
-   - Click 'Create' on the home screen
-   - Fill in the form with your game title, five categories, five questions/answers per category and teams
+No server, account, or build step is required.
 
+![Main Screen](screenshots/jeopardy-homepage.png)
 
-  ![Game Board Creation](screenshots/updated-manual-game-creation.png)
+## Create A Game
 
-   - When complete, click either:
-     - 'Create' to generate your game
-     - 'Save' to save a copy for future use
+1. Click `Create`.
+2. Fill in the game title, 5 categories, 5 clues and responses per category, and teams.
+3. While the form is incomplete, use `Export Draft` to save progress.
+4. When the form is complete:
+   - Use `Export Game` to save the complete game file and open the printable answer key flow.
+   - Use `Create` to start the playable board.
 
-  ![Game Board Complete Form](screenshots/updated-game-complete-form.png)
+![Game Board Creation](screenshots/jeopardy-manual-game-creation.png)
 
-   **Option B: Upload a draft or game file to edit**
-   - Click 'Edit' on the home screen to either upload and edit a draft file or game file.
+![Game Board Complete Form](screenshots/jeopardy-complete-form.png)
 
-  ![Draft File Upload](screenshots/updated-import-draft-file.png) 
-    
-   **Option C: Play using an existing game file**
-   - Click 'Play' and select your previously saved game file
-   - Add teams
-   - Click 'Continue to Game' and the board will be automatically created and displayed
+![Create Game Board Confirmation](screenshots/jeopardy-create-game-confirmation.png)
 
-  *To see a demo, upload the included `2000s-pop-culture.txt` file*
+## Create A Game With An LLM
 
-  ![Loading Game File](screenshots/updated-loading-game-file.png)
+You can also use an LLM to draft a game board from source material, then open the generated file in the app for review and editing.
 
-3. **Play the game**: Click on values to reveal answers, show questions, and award points
+1. Upload [Game Board Generation Prompt.md](<Game Board Generation Prompt.md>) to the LLM.
+2. Upload the source files or notes the game should be based on.
+3. Use this prompt:
 
-![Jeopardy Game Board](screenshots/game-board-gameplay.png)
+```text
+Using "Game Board Generation Prompt.md" as your instructions, use the additional uploaded text files as your sources.
+```
 
-## Gameplay Features
+4. Save the LLM's output as a plain text `.txt` file.
+5. Open the app and click `Edit` to review the generated board.
+6. Use `Export Game` when the board is complete and ready to play.
 
-- **Team Scoring System**: Add multiple teams, track and edit scores in real-time (score editing is automatically mapped to previous cell points)
-- **Flexible Creation**: Build boards through forms or upload existing files
-- **Save Created Games**: Save boards as text files for future games
-- **Persistent Storage**: Game state saves automatically between browser sessions
-- **Form Validation**: Form validation ensures all required fields are completed before the game board can be created
+See [LLM-Assisted Game Generation](docs/llm-assisted-generation.md) for the full workflow.
 
-## Technical Notes 
+## Edit Or Play Existing Files
 
-- **No server required**: Runs entirely in the browser
-- **Modern browsers**: Uses ES6+ JavaScript features
-- **File uploads**: Processes local text files with FileReader API
-- **Responsive**: CSS Grid and Flexbox for layout
-- **Modular**: Separated HTML/CSS/JS for maintainability
+Use `Edit` for drafts or complete game files that need changes.
+
+![Draft File Upload](screenshots/jeopardy-edit-file.png)
+
+Use `Play` for complete game files that are ready to run.
+
+![Loading Game File](screenshots/jeopardy-select-teams.png)
+
+To try the app, use the included `2000s-pop-culture.txt` file.
+
+## Features
+
+- Build a complete 5 by 5 Jeopardy-style board.
+- Export incomplete games as editable draft `.txt` files.
+- Export complete games as reusable `.txt` files.
+- Generate facilitator answer keys through the browser print dialog.
+- Add teams and track scores during gameplay.
+- Restore active board state from browser storage.
+- Validate required form fields before game creation.
+- Run fully locally with plain HTML, CSS, and JavaScript.
+
+## Documentation
+
+Full documentation lives in [docs](docs/index.md):
+
+- [User Guide](docs/user-guide.md)
+- [Facilitator Guide](docs/facilitator-guide.md)
+- [LLM-Assisted Game Generation](docs/llm-assisted-generation.md)
+- [File Format Reference](docs/file-format.md)
+- [Export Workflow](docs/export-workflow.md)
+- [Technical Overview](docs/technical-overview.md)
+- [Code Walkthrough](docs/code-walkthrough.md)
+- [Maintenance Guide](docs/maintenance.md)
+- [Known Limitations](docs/known-limitations.md)
 
 ## Project Structure
 
-### Core Files
-
-- **`jeopardy.html`** - Main HTML structure with game board layout, scoring table, and modal elements
-- **`css/jeopardy.css`** - Stylesheet with responsive design for desktop and mobile devices
-- **`js/jeopardy.js`** - Game logic handling file uploads, board generation, team management, and persistent storage
-
-## Exported Text File Breakdown
-
-1. **Title Line** (optional): `Title: Your Game Title`
-2. **Category Headers**: `Category: Category Name Here`
-3. **Questions**: `POINTS|CLUE|RESPONSE`
-   - Points: 100, 200, 300, 400, 500
-   - Clue: The statement shown to players first
-   - Response: The correct answer in question form
-4. **Five Categories**: Each with exactly 5 questions (100-500 points)
-5. **Blank Lines**: Ignored by the parser
-
-### Example
+```text
+.
+├── jeopardy.html
+├── css/
+│   └── jeopardy.css
+├── js/
+│   └── jeopardy.js
+├── docs/
+├── screenshots/
+├── Game Board Generation Prompt.md
+├── 2000s-pop-culture.txt
+└── LICENSE.md
 ```
+
+## File Format Preview
+
+Complete game files are plain text:
+
+```text
 Title: Early 2000s Pop Culture
 
 Category: Blockbuster Movies
@@ -95,11 +123,13 @@ Category: Blockbuster Movies
 200|This fantasy trilogy began in 2001 and concluded in 2003 with The Return of the King.|What is The Lord of the Rings?
 300|James Cameron directed this 2009 sci-fi epic, which became the highest-grossing film of the decade.|What is Avatar?
 400|Heath Ledger posthumously won an Oscar for playing the Joker in this 2008 superhero film.|What is The Dark Knight?
-500|This 2002 thriller, directed by Doug Liman and based on a Robert Ludlum novel, launched a successful action franchise starring Matt Damon as a trained assassin suffering from amnesia.|What is The Bourne Identity?
+500|This 2002 thriller, directed by Doug Liman and based on a Robert Ludlum novel, launched a successful action franchise starring Matt Damon.|What is The Bourne Identity?
 ```
 
----
+See the [File Format Reference](docs/file-format.md) for full details.
+
+## License
 
 Copyright (c) 2025 Eric Jones
 
-Licensed under the MIT License. See LICENSE.md for details.
+Licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
