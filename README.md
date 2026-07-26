@@ -40,6 +40,12 @@ No server, account, or build step is required.
 
 ![Create Game Board Confirmation](screenshots/jeopardy-create-game-confirmation.png)
 
+## Facilitator Answer Key
+
+When a game is complete, click `Export Game` to download the reusable game file and open the printable facilitator answer key. Use the browser print dialog to print it or save it as a PDF.
+
+![Facilitator Answer Key](screenshots/jeopardy-answer-key.png)
+
 ## Create A Game With An LLM
 
 You can also use an LLM to draft a game board from source material, then open the generated file in the app for review and editing.
@@ -57,14 +63,6 @@ Using "Game Board Generation Prompt.md" as your instructions, use the additional
 6. Use `Export Game` when the board is complete and ready to play.
 
 See [LLM-Assisted Game Generation](docs/llm-assisted-generation.md) for the full workflow.
-
-## Facilitator Answer Key
-
-When a game is complete, click `Export Game` to download the reusable game file and open the printable facilitator answer key. Use the browser print dialog to print it or save it as a PDF.
-
-![Open Answer Key Prompt](screenshots/jeopardy-answer-key-dialog.png)
-
-![Facilitator Answer Key](screenshots/jeopardy-answer-key.png)
 
 ## Edit Or Play Existing Files
 
