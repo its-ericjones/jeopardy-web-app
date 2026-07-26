@@ -58,6 +58,14 @@ Using "Game Board Generation Prompt.md" as your instructions, use the additional
 
 See [LLM-Assisted Game Generation](docs/llm-assisted-generation.md) for the full workflow.
 
+## Facilitator Answer Key
+
+When a game is complete, click `Export Game` to download the reusable game file and open the printable facilitator answer key. Use the browser print dialog to print it or save it as a PDF.
+
+![Open Answer Key Prompt](screenshots/jeopardy-answer-key-dialog.png)
+
+![Facilitator Answer Key](screenshots/jeopardy-answer-key.png)
+
 ## Edit Or Play Existing Files
 
 Use `Edit` for drafts or complete game files that need changes.
