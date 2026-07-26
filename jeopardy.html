@@ -82,8 +82,14 @@
       </div>
       
       <div class="form-actions">
-        <button id="generate-board">Create</button>
-        <button id="generate-download">Save</button>
+        <div id="create-action" class="action-block hide">
+          <button id="generate-board">Create</button>
+          <p class="action-description">Start the playable board.</p>
+        </div>
+        <div class="action-block">
+          <button id="generate-download">Export Draft</button>
+          <p id="export-description" class="action-description">Save your progress as an editable draft.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -134,7 +140,7 @@
   <div id="confirmation-modal">
     <div class="confirmation-content">
       <h2>Create Game Board?</h2>
-      <p>This will start the game and hide the form. Make sure you've saved your work first.</p>
+      <p>This will start the game and hide the editor. Export your game first if you want a reusable game file and answer key PDF.</p>
       <div class="confirmation-buttons">
         <button id="confirm-create-board">Continue</button>
         <button id="cancel-create-board">Cancel</button>

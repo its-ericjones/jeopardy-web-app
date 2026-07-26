@@ -137,6 +137,39 @@ function parseTitleFromText(text) {
     return match ? match[1].trim() : '';
 }
 
+// Convert saved game text into structured data used by the board and answer key
+function parseGameBoardText(text) {
+    const lines = text.split(/\r?\n/);
+    const title = parseTitleFromText(text);
+    const categories = [];
+    let currentCategory = null;
+    
+    for (let line of lines) {
+        line = line.trim();
+        if (!line || line.toLowerCase().startsWith('title:')) continue;
+        if (line === '[JEOPARDY DRAFT]' || line.toLowerCase().startsWith('created:') || line.toLowerCase().startsWith('teams:')) continue;
+        
+        if (line.toLowerCase().startsWith('category:')) {
+            currentCategory = {
+                name: line.substring(9).trim(),
+                clues: []
+            };
+            categories.push(currentCategory);
+        } else if (/^\d+\|/.test(line) && currentCategory) {
+            const parts = line.split('|');
+            if (parts.length >= 3) {
+                currentCategory.clues.push({
+                    value: parts[0].trim(),
+                    question: parts[1].trim(),
+                    answer: parts.slice(2).join('|').trim()
+                });
+            }
+        }
+    }
+    
+    return { title, categories };
+}
+
 // --- File upload and board population ---
 // File validation functions
 function validateDraftFile(fileContent) {
@@ -413,6 +446,7 @@ document.getElementById('jeopardy-draft-upload').addEventListener('change', func
                         
                         // Save as localStorage draft
                         saveFormDraft();
+                        updateFormActionState();
                         
                         CustomDialog.success('Draft imported successfully!');
                         
@@ -569,6 +603,7 @@ document.getElementById('jeopardy-draft-upload').addEventListener('change', func
                         
                         // Save as localStorage draft
                         saveFormDraft();
+                        updateFormActionState();
                         
                         CustomDialog.success('Game file imported for editing!');
                         
@@ -634,42 +669,10 @@ function populateJeopardyBoardFromText(text) {
     // Generate the board structure first
     generateGameBoard();
     
-    const lines = text.split(/\r?\n/);
-    let categories = [];
-    let questions = [];
-    let currentCategory = null;
-    let currentQuestions = [];
-    for (let line of lines) {
-    line = line.trim();
-    if (!line) continue;
-    // Detect new category
-    if (line.toLowerCase().startsWith('category:')) {
-        if (currentCategory) {
-        categories.push(currentCategory);
-        questions.push(currentQuestions);
-        }
-        currentCategory = line.substring(9).trim();
-        currentQuestions = [];
-    } else if (/^\d+\|/.test(line)) {
-        // Parse value|clue|response line
-        const parts = line.split('|');
-        if (parts.length >= 3) {
-        currentQuestions.push({
-            value: parts[0].trim(),
-            // File format is: value|clue|response
-            // - question: the clue shown first to players
-            // - answer: the correct response revealed with "Show Answer" (in question form)
-            question: parts[1].trim(), // This is shown first (Jeopardy clue)
-            answer: parts.slice(2).join('|').trim() // This is shown after "Show Answer"
-        });
-        }
-    }
-    }
-    // Push last category/questions
-    if (currentCategory) {
-    categories.push(currentCategory);
-    questions.push(currentQuestions);
-    }
+    const boardData = parseGameBoardText(text);
+    const categories = boardData.categories.map(category => category.name);
+    const questions = boardData.categories.map(category => category.clues);
+    
     // Populate category headers
     const ths = document.querySelectorAll('#game thead th');
     ths.forEach((th, i) => {
@@ -1037,7 +1040,27 @@ const loadGameFileBtn = document.getElementById('load-game-file');
 const createFormDiv = document.getElementById('create-form');
 const generateBoardBtn = document.getElementById('generate-board');
 const generateDownloadBtn = document.getElementById('generate-download');
+const createAction = document.getElementById('create-action');
+const exportDescription = document.getElementById('export-description');
 const categoriesContainer = document.getElementById('categories-container');
+
+function updateFormActionState() {
+    if (!generateDownloadBtn || createFormDiv.classList.contains('hide')) return;
+    
+    const isComplete = isFormComplete(gatherFormData());
+    
+    if (createAction) {
+        createAction.classList.toggle('hide', !isComplete);
+    }
+    
+    generateDownloadBtn.textContent = isComplete ? 'Export Game' : 'Export Draft';
+    
+    if (exportDescription) {
+        exportDescription.textContent = isComplete
+            ? 'Save the game file, then print or save the answer key.'
+            : 'Save your progress as an editable draft.';
+    }
+}
 
 // Default values for new categories and questions
 const DEFAULT_CATEGORY = "New Category";
@@ -1093,6 +1116,7 @@ showCreateFormBtn.addEventListener('click', function() {
             // Save form state to draft
             const formData = gatherFormData();
             storage.save('jeopardyFormDraft', formData);
+            updateFormActionState();
         });
     }
     
@@ -1142,6 +1166,7 @@ showCreateFormBtn.addEventListener('click', function() {
     // Set up draft management functionality regardless of path taken
     setupDraftEventListeners();
     updateLastSavedDisplay();
+    updateFormActionState();
     
     // Clear any previous validation errors
     document.getElementById('validation-message').style.display = 'none';
@@ -1238,8 +1263,11 @@ function addCategory() {
             // Save form state to draft
             const formData = gatherFormData();
             storage.save('jeopardyFormDraft', formData);
+            updateFormActionState();
         });
     });
+    
+    updateFormActionState();
 }
 
 // No longer using addCategoryBtn
@@ -1488,20 +1516,18 @@ generateDownloadBtn.addEventListener('click', function() {
     const isComplete = isFormComplete(formData);
     const defaultName = boardTitle.replace(/\s+/g, '-').toLowerCase() || 'jeopardy';
     
-    let content, filename;
-    
     if (isComplete && validateFormBeforeSubmission()) {
-        // Save as complete game file
-        content = createBoardTextFromForm();
-        filename = `${defaultName}.txt`;
-    } else {
-        // Save as draft file
-        content = createDraftFromForm(formData);
-        filename = `${defaultName}-draft.txt`;
+        const content = createBoardTextFromForm();
+        if (content) {
+            downloadBoardFile(content, `${defaultName}.txt`);
+            promptForAnswerKeyPrint().then(() => openAnswerKeyPrintWindow(content));
+        }
+        return;
     }
     
-    if (content) {
-        downloadBoardFile(content, filename);
+    const draftContent = createDraftFromForm(formData);
+    if (draftContent) {
+        downloadBoardFile(draftContent, `${defaultName}-draft.txt`);
     }
 });
 
@@ -1688,6 +1714,232 @@ function downloadBoardFile(content, filename) {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function getAnswerKeyDocumentTitle(title) {
+    return `${getSafeFileBaseName(title)} - Answer Key`;
+}
+
+function promptForAnswerKeyPrint() {
+    return new Promise((resolve) => {
+        CustomDialog.createModal({
+            title: 'Game File Download Started',
+            message: 'After allowing the download, open the answer key and use the print dialog to save it as a PDF.',
+            buttons: [
+                { text: 'Open Answer Key', style: 'primary', action: resolve }
+            ]
+        });
+    });
+}
+
+function buildAnswerKeyHtml(boardText) {
+    const boardData = parseGameBoardText(boardText);
+    const title = boardData.title || 'Jeopardy Game';
+    const categories = boardData.categories.slice(0, 5);
+    const generatedDate = new Date().toLocaleDateString();
+    
+    const categorySections = categories.map(category => {
+        const clues = category.clues.map(clue => `
+            <article class="answer-key-item">
+                <div class="answer-key-value">${escapeHtml(clue.value)}</div>
+                <div class="answer-key-content">
+                    <p><span>Clue:</span> ${escapeHtml(clue.question)}</p>
+                    <p><span>Response:</span> ${escapeHtml(clue.answer)}</p>
+                </div>
+            </article>
+        `).join('');
+        
+        return `
+            <section class="answer-key-category">
+                <h2>${escapeHtml(category.name)}</h2>
+                ${clues}
+            </section>
+        `;
+    }).join('');
+    
+    return `<main class="answer-key">
+    <header class="document-header">
+      <h1>${escapeHtml(title)}</h1>
+      <div class="subtitle">Facilitator Answer Key<br>${escapeHtml(generatedDate)}</div>
+    </header>
+    ${categorySections}
+  </main>`;
+}
+
+function openAnswerKeyPrintWindow(boardText) {
+    const boardData = parseGameBoardText(boardText);
+    
+    if (boardData.categories.length < 1 || boardData.categories.every(category => category.clues.length === 0)) {
+        CustomDialog.alert('Add at least one category with clues before exporting an answer key.');
+        return;
+    }
+    
+    const existingPrintArea = document.getElementById('answer-key-print-area');
+    if (existingPrintArea) {
+        existingPrintArea.remove();
+    }
+    
+    const answerKeyHtml = buildAnswerKeyHtml(boardText);
+    let printStyles = document.getElementById('answer-key-page-print-styles');
+    if (!printStyles) {
+        printStyles = document.createElement('style');
+        printStyles.id = 'answer-key-page-print-styles';
+        printStyles.textContent = `
+            @page {
+                size: letter portrait;
+                margin: 0.5in;
+            }
+
+            #answer-key-print-area {
+                display: none;
+            }
+
+            @media print {
+                html,
+                body {
+                    height: auto !important;
+                    margin: 0 !important;
+                    min-height: 0 !important;
+                    padding: 0 !important;
+                }
+
+                body > :not(#answer-key-print-area) {
+                    display: none !important;
+                }
+
+                #answer-key-print-area {
+                    display: block !important;
+                    position: static !important;
+                    inset: auto !important;
+                }
+
+                #answer-key-print-area,
+                #answer-key-print-area * {
+                    box-sizing: border-box;
+                }
+
+                #answer-key-print-area .answer-key {
+                    color: #111;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 10pt;
+                    line-height: 1.3;
+                }
+
+                #answer-key-print-area .document-header {
+                    border-bottom: 2px solid #111;
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 24px;
+                    margin-bottom: 12px;
+                    padding-bottom: 8px;
+                }
+
+                #answer-key-print-area h1 {
+                    font-size: 20pt;
+                    line-height: 1.1;
+                    margin: 0;
+                }
+
+                #answer-key-print-area .subtitle {
+                    color: #555;
+                    font-size: 8.5pt;
+                    font-weight: 700;
+                    line-height: 1.35;
+                    text-align: right;
+                    text-transform: uppercase;
+                    white-space: nowrap;
+                }
+
+                #answer-key-print-area .answer-key-category {
+                    break-inside: avoid;
+                    margin-bottom: 10px;
+                }
+
+                #answer-key-print-area h2 {
+                    border-bottom: 1px solid #bbb;
+                    font-size: 12pt;
+                    margin: 0 0 6px;
+                    padding-bottom: 3px;
+                }
+
+                #answer-key-print-area .answer-key-item {
+                    border-bottom: 1px solid #e1e1e1;
+                    break-inside: avoid;
+                    display: grid;
+                    grid-template-columns: 0.65in 1fr;
+                    gap: 8px;
+                    padding: 4px 0;
+                }
+
+                #answer-key-print-area .answer-key-item:last-child {
+                    border-bottom: 0;
+                }
+
+                #answer-key-print-area .answer-key-value {
+                    font-weight: 800;
+                }
+
+                #answer-key-print-area p {
+                    margin: 0 0 2px;
+                    overflow-wrap: anywhere;
+                }
+
+                #answer-key-print-area p:last-child {
+                    margin-bottom: 0;
+                }
+
+                #answer-key-print-area p span {
+                    font-weight: 800;
+                }
+            }
+        `;
+        document.head.appendChild(printStyles);
+    }
+    
+    const printArea = document.createElement('section');
+    printArea.id = 'answer-key-print-area';
+    printArea.setAttribute('aria-label', 'Answer key PDF preview');
+    printArea.innerHTML = answerKeyHtml;
+    printArea.dataset.ready = 'true';
+    document.body.appendChild(printArea);
+    
+    const originalDocumentTitle = document.title;
+    document.title = getAnswerKeyDocumentTitle(boardData.title);
+    
+    const restoreDocumentTitle = function() {
+        document.title = originalDocumentTitle;
+        window.removeEventListener('afterprint', restoreDocumentTitle);
+        window.removeEventListener('focus', restoreDocumentTitle);
+    };
+    window.addEventListener('afterprint', restoreDocumentTitle);
+    window.addEventListener('focus', restoreDocumentTitle);
+    
+    setTimeout(() => {
+        window.print();
+    }, 100);
+    
+    setTimeout(() => {
+        restoreDocumentTitle();
+        if (printArea.parentNode) {
+            printArea.remove();
+        }
+    }, 300000);
+}
+
+function getSafeFileBaseName(title, fallback = 'Jeopardy Game') {
+    return (title || fallback)
+        .replace(/[\\/:*?"<>|]/g, '-')
+        .replace(/\s+/g, ' ')
+        .trim() || fallback;
 }
 
 // Add input event listeners to clear validation styling
@@ -1984,6 +2236,7 @@ function loadFormDraft() {
     
     // Update last saved display
     updateLastSavedDisplay();
+    updateFormActionState();
     
     return true;
 }
@@ -2020,6 +2273,8 @@ function reinitializeForm() {
     if (validationMessage) {
         validationMessage.style.display = 'none';
     }
+    
+    updateFormActionState();
 }
 
 // Discard the form draft
@@ -2127,6 +2382,7 @@ function setupDraftEventListeners() {
                 formTeams = [];
                 addFormTeam();
                 renderFormTeams();
+                updateFormActionState();
                 
                 await CustomDialog.success('Draft discarded successfully.');
             }
@@ -2157,6 +2413,8 @@ function setupDraftEventListeners() {
                 }
             }
         }
+        
+        updateFormActionState();
     });
 }
 
@@ -2472,4 +2730,3 @@ const CustomDialog = {
         }
     }
 };
-
